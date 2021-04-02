@@ -76,7 +76,7 @@ Viewer::Viewer(const int left,
     }
   }
 
-  // Set coordinates of for window's area rectangle.
+  // Set coordinates for window's area rectangle.
   RECT Rect;
   SetRect(&Rect,
           left, top,
@@ -232,12 +232,12 @@ LRESULT WINAPI Viewer::wndProcProxy(HWND   hwnd,
 {
   if ( message == WM_CREATE )
   {
-    // Save pointer to our class instance (sent on window create) to window storage
+    // Save pointer to our class instance (sent on window create) to window storage.
     CREATESTRUCTW* pCreateStruct = (CREATESTRUCTW*) lparam;
     SetWindowLongPtr(hwnd, int (GWLP_USERDATA), (LONG_PTR) pCreateStruct->lpCreateParams);
   }
 
-  // Get pointer to our class instance
+  // Get pointer to our class instance.
   Viewer* pThis = (Viewer*) GetWindowLongPtr( hwnd, int (GWLP_USERDATA) );
   return (pThis != NULL) ? pThis->wndProc(hwnd, message, wparam, lparam)
                          : DefWindowProcW(hwnd, message, wparam, lparam);
