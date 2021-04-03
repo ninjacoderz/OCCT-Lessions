@@ -18,6 +18,7 @@ test/*.fbx
 include/
 demos/build*
 demos/*build
+*/build/
 /build*
 /install
 uic_wrapper.bat
