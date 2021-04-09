@@ -36,6 +36,14 @@ struct intBlock
 
   intBlock() : myData(0), myMask(0) {}
 
+  static int PackedKeyIndex(const int key)
+  {
+    printBits(key, "PackedKeyIndex() // key");
+    unsigned res = (unsigned) key >> 5;
+    printBits(res, "PackedKeyIndex() // res");
+    return res;
+  }
+
   //! Return TRUE if the given integer key is set within this packed node.
   int HasValue(const int val) const
   {
@@ -47,9 +55,9 @@ struct intBlock
 
   //! Add integer key to this packed node.
   //! @return TRUE if key has been added
-  Standard_Boolean AddValue (Standard_Integer theValue)
+  bool AddValue(const int val)
   {
-    const Standard_Integer aValInt = (1 << (theValue & MASK_LOW));
+    const int aValInt = (1 << (val & MASK_LOW));
     printBits(aValInt, "AddValue() aValInt");
     if ((myData & aValInt) == 0)
     {
@@ -91,10 +99,14 @@ int main(int argc, char** argv)
     std::cout << "has value\n";
   block.AddValue(1);
   if ( block.HasValue(1) )
-    std::cout << "has value\n";
+    std::cout << "has value 1\n";
+  if ( block.HasValue(32) )
+    std::cout << "has value 32 (??)\n";
   block.AddValue(2);
   if ( block.HasValue(2) )
-    std::cout << "has value\n";
+    std::cout << "has value 2\n";
+  if ( block.HasValue(33) )
+    std::cout << "has value 33 (??)\n";
   block.AddValue(3);
   if ( block.HasValue(3) )
     std::cout << "has value\n";
@@ -104,9 +116,23 @@ int main(int argc, char** argv)
   block.AddValue(15);
   if ( block.HasValue(15) )
     std::cout << "has value\n";
+  block.AddValue(32); // First value exceeding the low mask.
+  if ( block.HasValue(32) )
+    std::cout << "has value\n";
   block.AddValue(101);
   if ( block.HasValue(101) )
     std::cout << "has value\n";
+
+  intBlock::PackedKeyIndex(0);
+  intBlock::PackedKeyIndex(1);
+  intBlock::PackedKeyIndex(32);
+  intBlock::PackedKeyIndex(2);
+  intBlock::PackedKeyIndex(33);
+  intBlock::PackedKeyIndex(3);
+  intBlock::PackedKeyIndex(10);
+  intBlock::PackedKeyIndex(15);
+  intBlock::PackedKeyIndex(32);
+  intBlock::PackedKeyIndex(101);
 
   TColStd_PackedMapOfInteger map;
   map.Add(0); // ???
