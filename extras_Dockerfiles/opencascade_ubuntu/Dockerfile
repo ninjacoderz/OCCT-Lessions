@@ -2,12 +2,19 @@
 FROM ubuntu:latest
 
 # To avoid all sort of prompts from apt-get.
+# You use this mode when you need zero interaction while installing or upgrading the system via apt.
+# It accepts the default answer for all questions. It might mail an error message to the root user,
+# but that's it all. Otherwise, it is totally silent and humble, a perfect frontend for automatic
+# installs. One can use such mode in Dockerfile, shell scripts, cloud-init script, and more.
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ======================
 #  Prepare dependencies
 # ======================
- 
+
+# Downloads the package lists from the repositories and "updates" them to get information on
+# the newest versions of packages and their dependencies. It will do this for all repositories
+# and PPAs.
 RUN apt-get update
 
 # The build-essentials packages are meta-packages that are necessary for compiling software.
@@ -25,12 +32,27 @@ RUN apt-get -y install git
 RUN apt-get -y install cmake
 
 # Deps for DRAW.
-RUN apt-get -y install tcl tcl-dev
-RUN apt-get -y install tk tk-dev
-RUN apt-get -y install libfontconfig1-dev
+#
+# TODO: Tk might not be necessary starting from OpenCascade 7.6 (to be checked).
+#       (https://tracker.dev.opencascade.org/view.php?id=32232)
+RUN apt-get -y install tcl tcl-dev tk tk-dev
+
+# libXmu provides a set of miscellaneous utility convenience functions for X libraries to use.
+# libxi is X11 Input extension library (development headers).
+#
+# Without these, libTKService.so won't compile with linker errors saying
+#
+#    "/usr/bin/ld: cannot find -lXmu"
+#    "/usr/bin/ld: cannot find -lXmi"
+#
+# TODO: Xlib might become optional (https://tracker.dev.opencascade.org/view.php?id=32308)
 RUN apt-get -y install libxmu-dev libxi-dev
 
 # /opencascade/src/InterfaceGraphic/InterfaceGraphic.hxx:41:10: fatal error: GL/glx.h: No such file or directory
+#
+# libglfw3-dev     : portable library for OpenGL, window and input (development files).
+# libgl1-mesa-dev  : free implementation of the OpenGL API -- GLX development files.
+# libglu1-mesa-dev : includes headers and static libraries for compiling programs with GLU.
 RUN apt-get -y install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
 
 # ===========================================================
@@ -54,9 +76,14 @@ RUN cmake .. \
 RUN make
 RUN make install
 
-# ==========
-#  Finalize
-# ==========
-
- 
-ENTRYPOINT [ "/usr/bin/DRAWEXE" ]
+# To run interactively, use:
+# xhost +
+# docker run --rm -ti --net=host -e DISPLAY=:0 opencascade /usr/bin/draw.sh
+#
+# Here:
+#  --rm      automatically cleans up the container from the file system when the container exits.
+#   -ti      is used for interactive processes (-t for tty allocation, -i to keep stdin open).
+# --net=host gives the container full access to local system services.
+#  -e        sets the environment variable.
+#
+# See also https://docs.docker.com/engine/reference/run/
