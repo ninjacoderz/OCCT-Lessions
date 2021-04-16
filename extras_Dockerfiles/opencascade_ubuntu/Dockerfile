@@ -76,9 +76,23 @@ RUN cmake .. \
 RUN make
 RUN make install
 
-# To run interactively, use:
-# xhost +
-# docker run --rm -ti --net=host -e DISPLAY=:0 opencascade /usr/bin/draw.sh
+# To run interactively on Linux, use:
+# ---
+# > xhost +
+# > docker run --rm -ti --net=host -e DISPLAY=:0 quaoarcad/opencascade:7_4_0
+# ---
+# On Unix-like operating systems, the xhost command is a server access control program for X.
+# In our case, access is granted to everyone, even if they aren't on the list (i.e., access
+# control is turned off).
+#
+# To run interactively on Windows, use the instruction provided
+# by https://cuneyt.aliustaoglu.biz/en/running-gui-applications-in-docker-on-windows-linux-mac-hosts/
+# To put it briefly, you'll need XLaunch, which is a Windows X-server. Then, notice that you'll have
+# to supply it with the IP address, which you can find using `ipconfig` command. Just make sure to
+# set 'Disable access control' flag in the XLaunch wizard.
+# ---
+# > docker run --rm -it -e DISPLAY=192.168.1.40:0.0 quaoarcad/opencascade:7_4_0
+# ---
 #
 # Here:
 #  --rm      automatically cleans up the container from the file system when the container exits.
