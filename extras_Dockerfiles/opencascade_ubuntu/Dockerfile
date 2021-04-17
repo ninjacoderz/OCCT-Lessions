@@ -62,7 +62,7 @@ RUN apt-get -y install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
 # OpenCascade
 RUN git clone https://github.com/Open-Cascade-SAS/OCCT.git opencascade
 WORKDIR /opencascade
-RUN git checkout V7_4_0 -b smru
+RUN git checkout V7_4_0 -b dev-branch
 RUN mkdir -p build
 WORKDIR /opencascade/build
 RUN cmake .. \
