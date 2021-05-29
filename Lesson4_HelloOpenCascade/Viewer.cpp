@@ -42,6 +42,41 @@
 #include <V3d_View.hxx>
 #include <V3d_Viewer.hxx>
 
+namespace {
+  //! Adjust the style of local selection.
+  //! \param[in] context the AIS context.
+  void AdjustSelectionStyle(const Handle(AIS_InteractiveContext)& context)
+  {
+    // Initialize style for sub-shape selection.
+    Handle(Prs3d_Drawer) selDrawer = new Prs3d_Drawer;
+    //
+    selDrawer->SetLink                ( context->DefaultDrawer() );
+    selDrawer->SetFaceBoundaryDraw    ( true );
+    selDrawer->SetDisplayMode         ( 1 ); // Shaded
+    selDrawer->SetTransparency        ( 0.5f );
+    selDrawer->SetZLayer              ( Graphic3d_ZLayerId_Topmost );
+    selDrawer->SetColor               ( Quantity_NOC_GOLD );
+    selDrawer->SetBasicFillAreaAspect ( new Graphic3d_AspectFillArea3d() );
+
+    // Adjust fill area aspect.
+    const Handle(Graphic3d_AspectFillArea3d)&
+      fillArea = selDrawer->BasicFillAreaAspect();
+    //
+    fillArea->SetInteriorColor     (Quantity_NOC_GOLD);
+    fillArea->SetBackInteriorColor (Quantity_NOC_GOLD);
+    //
+    fillArea->ChangeFrontMaterial() .SetMaterialName(Graphic3d_NOM_NEON_GNC);
+    fillArea->ChangeFrontMaterial() .SetTransparency(0.4f);
+    fillArea->ChangeBackMaterial()  .SetMaterialName(Graphic3d_NOM_NEON_GNC);
+    fillArea->ChangeBackMaterial()  .SetTransparency(0.4f);
+
+    selDrawer->UnFreeBoundaryAspect()->SetWidth(10.0);
+
+    // Update AIS context.
+    context->SetHighlightStyle(Prs3d_TypeOfHighlight_LocalSelected, selDrawer);
+  }
+}
+
 //-----------------------------------------------------------------------------
 
 Viewer::Viewer(const int left,
@@ -125,6 +160,13 @@ void Viewer::StartMessageLoop()
   {
     Handle(AIS_Shape) shape = new AIS_Shape(sh);
     m_context->Display(shape, true);
+
+    // Adjust selection style.
+    ::AdjustSelectionStyle(m_context);
+
+    // Activate selection modes.
+    m_context->Activate(4, true); // faces
+    m_context->Activate(2, true); // edges
   }
 
   MSG Msg;
