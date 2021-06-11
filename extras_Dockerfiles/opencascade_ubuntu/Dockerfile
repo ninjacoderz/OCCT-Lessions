@@ -31,11 +31,11 @@ RUN apt-get -y install git
 # OpenCascade is built with cmake.
 RUN apt-get -y install cmake
 
-# Deps for DRAW.
+# Deps for DRAW and dumping images to PNG (freeimage).
 #
 # TODO: Tk might not be necessary starting from OpenCascade 7.6 (to be checked).
 #       (https://tracker.dev.opencascade.org/view.php?id=32232)
-RUN apt-get -y install tcl tcl-dev tk tk-dev
+RUN apt-get -y install tcl tcl-dev tk tk-dev libfreeimage-dev
 
 # libXmu provides a set of miscellaneous utility convenience functions for X libraries to use.
 # libxi is X11 Input extension library (development headers).
@@ -54,6 +54,11 @@ RUN apt-get -y install libxmu-dev libxi-dev
 # libgl1-mesa-dev  : free implementation of the OpenGL API -- GLX development files.
 # libglu1-mesa-dev : includes headers and static libraries for compiling programs with GLU.
 RUN apt-get -y install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
+
+# Xvfb provides an X server that can run on machines with no
+# display hardware and no physical input devices. It emulates a
+# dumb framebuffer using virtual memory.
+RUN apt-get -y install xvfb
 
 # ===========================================================
 #  Clone OpenCascade from its public repo, build and install
