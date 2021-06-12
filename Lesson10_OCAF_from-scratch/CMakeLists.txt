@@ -11,8 +11,6 @@ include_directories ( SYSTEM ${OpenCASCADE_INCLUDE_DIR} )
 
 # Add executable
 add_executable (Lesson_10_OcafEx
-  src/Application.h
-  src/Application.cpp
   src/main.cpp
 )
 
