@@ -70,7 +70,7 @@ namespace {
     fillArea->ChangeBackMaterial()  .SetMaterialName(Graphic3d_NOM_NEON_GNC);
     fillArea->ChangeBackMaterial()  .SetTransparency(0.4f);
 
-    selDrawer->UnFreeBoundaryAspect()->SetWidth(10.0);
+    selDrawer->UnFreeBoundaryAspect()->SetWidth(1.0);
 
     // Update AIS context.
     context->SetHighlightStyle(Prs3d_TypeOfHighlight_LocalSelected, selDrawer);
@@ -160,6 +160,7 @@ void Viewer::StartMessageLoop()
   {
     Handle(AIS_Shape) shape = new AIS_Shape(sh);
     m_context->Display(shape, true);
+    m_context->SetDisplayMode(shape, AIS_Shaded, true);
 
     // Adjust selection style.
     ::AdjustSelectionStyle(m_context);
