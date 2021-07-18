@@ -47,6 +47,8 @@
 #include <XCAFPrs_AISObject.hxx>
 #include <XCAFPrs_Style.hxx>
 
+#undef COUT_DEBUG
+
 //-----------------------------------------------------------------------------
 
 namespace
@@ -107,10 +109,12 @@ bool DisplayScene::Execute()
       TCollection_AsciiString entry;
       TDF_Tool::Entry(L, entry);
 
+#if defined COUT_DEBUG
       std::cout << "DisplayScene::Execute(): cannot display item '"
                 << entry.ToCString()
                 << "'"
                 << std::endl;
+#endif
     }
   }
 
@@ -178,18 +182,22 @@ void DisplayScene::displayItem(const TDF_Label&               label,
         TCollection_AsciiString refEntry;
         TDF_Tool::Entry(refLabel, refEntry);
 
+#if defined COUT_DEBUG
         std::cout << "DisplayScene::Execute(): creating original AIS object for item '"
                   << refEntry.ToCString()
                   << "'"
                   << std::endl;
+#endif
 
         // Original.
         Handle(AIS_ColoredShape) brepPrs = new XCAFPrs_AISObject(refLabel);
 
+#if defined COUT_DEBUG
         std::cout << "DisplayScene::Execute(): creating AIS object connected to the item '"
                   << refEntry.ToCString()
                   << "'"
                   << std::endl;
+#endif
 
         // Connected.
         brepConnected = new AIS_ConnectedInteractive();
@@ -221,10 +229,12 @@ void DisplayScene::displayItem(const TDF_Label&               label,
           TCollection_AsciiString originalEntry;
           TDF_Tool::Entry(originalLab, originalEntry);
 
+#if defined COUT_DEBUG
           std::cout << "DisplayScene::Execute(): creating AIS object connected to the item '"
                     << originalEntry.ToCString()
                     << "'"
                     << std::endl;
+#endif
 
           // Connected.
           brepConnected = new AIS_ConnectedInteractive();
