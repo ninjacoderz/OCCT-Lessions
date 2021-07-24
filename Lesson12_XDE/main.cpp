@@ -3,10 +3,9 @@
 
 // OpenCascade includes
 #include <BinXCAFDrivers.hxx>
-#include <BRepTools.hxx>
-#include <BRepPrimAPI_MakeBox.hxx>
 #include <STEPCAFControl_Reader.hxx>
 #include <TDocStd_Application.hxx>
+#include <TDocStd_Document.hxx>
 
 //-----------------------------------------------------------------------------
 
