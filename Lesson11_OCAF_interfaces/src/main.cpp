@@ -13,6 +13,7 @@
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TDataXtd_Triangulation.hxx>
+#include <TDocStd_Document.hxx>
 #include <TDF_Reference.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
 

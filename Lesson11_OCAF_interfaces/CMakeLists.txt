@@ -14,10 +14,17 @@ add_executable (Lesson_11_OcafEx
   src/main.cpp
 )
 
+#message(STATUS ${OpenCASCADE_LIBRARIES})
+
 # Add linker options
 foreach (LIB ${OpenCASCADE_LIBRARIES})
-  target_link_libraries(Lesson_11_OcafEx debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
-  target_link_libraries(Lesson_11_OcafEx optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+  if (WIN32)
+    target_link_libraries(Lesson_11_OcafEx debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
+    target_link_libraries(Lesson_11_OcafEx optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+  else()
+    target_link_libraries(Lesson_11_OcafEx debug ${OpenCASCADE_LIBRARY_DIR}d/lib${LIB}.so)
+    target_link_libraries(Lesson_11_OcafEx optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+  endif()
 endforeach()
 
 # Adjust runtime environment
