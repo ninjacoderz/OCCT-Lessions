@@ -26,6 +26,8 @@ public:
     {
       gp_Pnt2d P2d(P.first, P.second);
 
+      // If performance is an issue, avoid using dynamically
+      // growing collections like vectors, etc.
       m_poles.push_back( gp_Pnt2d(P.first, P.second) );
 
       // One thing which is pretty inconvenient is the necessity to
