@@ -38,7 +38,6 @@ int main()
     return 1;
   }
 
-
   app->Close(doc);
   return 0;
 }

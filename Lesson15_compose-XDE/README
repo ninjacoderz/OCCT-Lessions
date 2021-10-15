@@ -1,0 +1,17 @@
+Lesson 15: Compose XDE.
+
+Special thanks go to Mladen Banovic, my old friend from the IODA project. Mladen had proposed the idea of this lesson.
+I use some excerpts from his email explaining the idea below.
+
+This lesson composes an XDE document to export CAD assemblies with names and colors to a STEP file. It is similar to lesson 12,
+just the other way around:
+
+1) Create some simple CAD assembly in the XDE document.
+2) Put some names on subassemblies and individual parts, apply colors to certain parts.
+3) Export to a STEP file.
+
+Having names and colors in a STEP file can be very useful to quickly identify certain parts from the STEP file in
+different programs. For example, we could create a geometry in OCCT with this additional information and import it into some CAD
+tool like FreeCAD that can also read this information from the STEP. Furthermore, it would also be possible to import
+the geometry in some mesh generator that could use names/colors to identify and mesh certain parts with different
+conditions automatically.
