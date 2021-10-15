@@ -4,11 +4,14 @@
 // OpenCascade includes
 #include <BRepPrimAPI_MakeCylinder.hxx>
 #include <BinXCAFDrivers.hxx>
+#include <gp_Quaternion.hxx>
 #include <STEPCAFControl_Writer.hxx>
 #include <TDF_ChildIterator.hxx>
 #include <TDataStd_Name.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
+#include <TopExp.hxx>
+#include <TopoDS.hxx>
 #include <XCAFDoc_ColorTool.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
@@ -83,8 +86,14 @@ namespace
       BRep_Builder bbuilder;
       bbuilder.MakeCompound(compShape);
 
-      gp_Trsf wleft_T;  wleft_T .SetTranslationPart( gp_Vec(-L/2, 0, 0) );
-      gp_Trsf wright_T; wright_T.SetTranslationPart( gp_Vec( L/2, 0, 0) );
+      gp_Trsf wright_T;
+      wright_T.SetTranslationPart( gp_Vec(L/2, 0, 0) );
+
+      gp_Quaternion qn(gp::DY(), M_PI);
+      gp_Trsf wleft_TR;
+      wleft_TR.SetRotation(qn);
+      //
+      gp_Trsf wleft_T = wright_T.Inverted() * wleft_TR;
 
       bbuilder.Add( compShape, wheel.Moved(wleft_T) );
       bbuilder.Add( compShape, wheel.Moved(wright_T) );
@@ -119,6 +128,12 @@ struct t_prototype
   TDF_Label    label;
 };
 
+struct t_wheelPrototype : public t_prototype
+{
+  TopoDS_Face frontFace;
+  TDF_Label   frontFaceLabel;
+};
+
 int main(int argc, char** argv)
 {
   Viewer vout(50, 50, 500, 500);
@@ -136,6 +151,10 @@ int main(int argc, char** argv)
   Handle(XCAFDoc_ColorTool)
     CT = XCAFDoc_DocumentTool::ColorTool( doc->Main() ); // Color tool.
 
+  /* ===========================
+   *  Prepare assembly document.
+   * =========================== */
+
   // Parameters.
   const double OD = 500;
   const double W  = 100;
@@ -143,7 +162,7 @@ int main(int argc, char** argv)
   const double CL = 1000;
 
   // Create one wheel prototype.
-  t_prototype wheelPrototype;
+  t_wheelPrototype wheelPrototype;
   wheelPrototype.shape = ::ShapeReflection::CreateWheel(OD, W);
   wheelPrototype.label = ST->AddShape(wheelPrototype.shape, false); // Add to the XDE document.
 
@@ -185,6 +204,19 @@ int main(int argc, char** argv)
   {
     TDataStd_Name::Set(cit.Value(), "wheel-axle-ref");
   }
+
+  // Explode wheel shape by faces.
+  TopTools_IndexedMapOfShape wheelFaces;
+  TopExp::MapShapes(wheelPrototype.shape, TopAbs_FACE, wheelFaces);
+  //
+  wheelPrototype.frontFace      = TopoDS::Face( wheelFaces(2) );
+  wheelPrototype.frontFaceLabel = ST->AddSubShape(wheelPrototype.label, wheelPrototype.frontFace);
+
+  CT->SetColor( wheelPrototype.frontFaceLabel, Quantity_Color(0, 0, 1, Quantity_TOC_RGB), XCAFDoc_ColorSurf );
+
+  /* ==========
+   *  Finalize.
+   * ========== */
 
   // Display scene.
   DisplayScene cmd( doc, vout.GetContext() );
