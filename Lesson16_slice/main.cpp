@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     // undocumented.
     TopLoc_Location L;
     const Handle(Poly_Triangulation)&
-      poly = BRep_Tool::Triangulation(face, L, Poly_MeshPurpose_NONE);
+      poly = BRep_Tool::Triangulation(face, L);
 
     // Add nodes.
     std::unordered_map<int, int> nodesMap;
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
   //
   gp_Lin axisLin(axis);
 
-  vout << BRepBuilderAPI_MakeVertex(Pmin);
+  //vout << BRepBuilderAPI_MakeVertex(Pmin);
   //vout << BRepBuilderAPI_MakeVertex(Pmax);
 
   /* =================================
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
     planes.push_back(pln);
 
     // Diagnostic dump.
-    const double d = Abs(tMax - tMin);
+    const double d = Abs(tMax - tMin)/2;
     vout << BRepBuilderAPI_MakeFace(pln, -d, d, -d, d);
   }
 
@@ -177,8 +177,8 @@ int main(int argc, char** argv)
 
     //vout << BRepBuilderAPI_MakeVertex(V[0]) << BRepBuilderAPI_MakeVertex(V[1]);
 
-    double Vt[2] = { V[0]*axis.Direction().XYZ(),
-                     V[1]*axis.Direction().XYZ() };
+    double Vt[2] = { (V[0] - Pmin)*axis.Direction().XYZ(),
+                     (V[1] - Pmin)*axis.Direction().XYZ() };
 
     // Since edges are undirected, choose V[0] and V[1] such that Vx[0] < Vx[1].
     //double Vx[2] = {V[0].X(), V[1].X()};
@@ -198,17 +198,19 @@ int main(int argc, char** argv)
       // Position of the slicing plane along the axis.
       const double t = tMin + step*(i + 1);
 
-      vout << BRepBuilderAPI_MakeVertex( ElCLib::Value(t, axisLin) );
-
       // The edge should have intersection point.
       if ( t < Vt[0] || t > Vt[1] )
         continue;
+
+      //vout << BRepBuilderAPI_MakeVertex( ElCLib::Value(t, axisLin) );
 
       // Intersection point on the edge.
       const gp_XYZ edir = V[1] - V[0];
       const double tl   = rev ? Abs(t - Vt[1])/(Vt[1] - Vt[0]) : Abs(t - Vt[0])/(Vt[1] - Vt[0]); // Along link.
       const gp_XYZ p    = V[0] + tl*edir;
-      double       pt   = p*axis.Direction().XYZ();
+      double       pt   = (p - Pmin)*axis.Direction().XYZ();
+
+      //vout << BRepBuilderAPI_MakeVertex(p);
 
       if ( (pt > Vt[1]) || (pt < Vt[0]) )
         continue; // Skip out of range intersection points.
@@ -216,7 +218,7 @@ int main(int argc, char** argv)
       if ( std::isnan(pt) )
         continue;
 
-      //vout << BRepBuilderAPI_MakeVertex(p);
+      vout << BRepBuilderAPI_MakeVertex(p);
     }
   }
 
