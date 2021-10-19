@@ -17,6 +17,8 @@ include_directories ( SYSTEM ${OpenCASCADE_INCLUDE_DIR} )
 # Add executable
 add_executable (Lesson_16
   main.cpp
+  KHull2d.cpp
+  KHull2d.h
   Viewer.cpp
   Viewer.h
   ViewerInteractor.cpp

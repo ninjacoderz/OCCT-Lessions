@@ -1,3 +1,8 @@
+//-----------------------------------------------------------------------------
+// Copyright (c) 2020-present, Quaoar Studio
+// All rights reserved.
+//-----------------------------------------------------------------------------
+
 #include "Viewer.h"
 
 // OpenCascade includes
@@ -179,9 +184,6 @@ int main(int argc, char** argv)
 
     double Vt[2] = { (V[0] - Pmin)*axis.Direction().XYZ(),
                      (V[1] - Pmin)*axis.Direction().XYZ() };
-
-    // Since edges are undirected, choose V[0] and V[1] such that Vx[0] < Vx[1].
-    //double Vx[2] = {V[0].X(), V[1].X()};
     bool   rev   = false;
     //
     if ( Vt[1] < Vt[0] )
