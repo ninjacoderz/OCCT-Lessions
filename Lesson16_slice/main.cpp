@@ -173,6 +173,19 @@ int main(int argc, char** argv)
 
   tris->ComputeLinks();
 
+  // Intersection points by edge IDs.
+  //
+  // plane 0: {P0, P1, P2 ...}
+  // plane 1: {P3, P4, P5 ...}
+  // ...
+  std::vector< std::vector<gp_XYZ> > edgesPts;
+  //
+  for ( int i = 0; i < numPlanes; ++i )
+  {
+    edgesPts.push_back( std::vector<gp_XYZ>() );
+  }
+
+  // Intersect each mesh link.
   for ( Poly_CoherentTriangulation::IteratorOfLink lit(tris); lit.More(); lit.Next() )
   {
     const Poly_CoherentLink& link = lit.Value();
@@ -221,6 +234,9 @@ int main(int argc, char** argv)
         continue;
 
       vout << BRepBuilderAPI_MakeVertex(p);
+
+      // Store the slice point.
+      edgesPts[i].push_back(p);
     }
   }
 
