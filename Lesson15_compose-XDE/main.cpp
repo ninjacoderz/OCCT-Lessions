@@ -5,6 +5,7 @@
 #include <BRepPrimAPI_MakeCylinder.hxx>
 #include <BinXCAFDrivers.hxx>
 #include <gp_Quaternion.hxx>
+#include <Interface_Static.hxx>
 #include <STEPCAFControl_Writer.hxx>
 #include <TDF_ChildIterator.hxx>
 #include <TDataStd_Name.hxx>
@@ -16,9 +17,6 @@
 #include <XCAFDoc_DocumentTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
 
-// Standard includes
-#include <optional>
-
 //-----------------------------------------------------------------------------
 
 namespace
@@ -27,6 +25,10 @@ namespace
                          const char*                     filename)
   {
     STEPCAFControl_Writer Writer;
+
+    // To make subshape names work, we have to turn on the following static
+    // variable of OpenCascade.
+    Interface_Static::SetIVal("write.stepcaf.subshapes.name", 1);
 
     // Write XDE document to file.
     try
@@ -213,6 +215,9 @@ int main(int argc, char** argv)
   wheelPrototype.frontFaceLabel = ST->AddSubShape(wheelPrototype.label, wheelPrototype.frontFace);
 
   CT->SetColor( wheelPrototype.frontFaceLabel, Quantity_Color(0, 0, 1, Quantity_TOC_RGB), XCAFDoc_ColorSurf );
+
+  // Set name for a subshape.
+  TDataStd_Name::Set(wheelPrototype.frontFaceLabel, "front-face");
 
   /* ==========
    *  Finalize.
