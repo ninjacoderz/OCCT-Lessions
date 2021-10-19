@@ -108,7 +108,7 @@ int main(int argc, char** argv)
   gp_XYZ Pmax = aabb.CornerMax().XYZ();
   gp_XYZ D    = Pmax - Pmin;
   //
-  double dims[3] = { D.X(), D.Y(), D.Z() };
+  double dims[3] = { Abs(D.X()), Abs(D.Y()), Abs(D.Z()) };
 
   // Construct the axis.
   gp_Ax1 axis;
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
   gp_Lin axisLin(axis);
 
   vout << BRepBuilderAPI_MakeVertex(Pmin);
-  vout << BRepBuilderAPI_MakeVertex(Pmax);
+  //vout << BRepBuilderAPI_MakeVertex(Pmax);
 
   /* =================================
    *  Build a stack of slicing planes.
@@ -177,45 +177,46 @@ int main(int argc, char** argv)
 
     //vout << BRepBuilderAPI_MakeVertex(V[0]) << BRepBuilderAPI_MakeVertex(V[1]);
 
+    double Vt[2] = { V[0]*axis.Direction().XYZ(),
+                     V[1]*axis.Direction().XYZ() };
+
     // Since edges are undirected, choose V[0] and V[1] such that Vx[0] < Vx[1].
-    double Vx[2] = {V[0].X(), V[1].X()};
+    //double Vx[2] = {V[0].X(), V[1].X()};
     bool   rev   = false;
     //
-    if ( Vx[1] < Vx[0] )
+    if ( Vt[1] < Vt[0] )
     {
-      std::swap(Vx[0], Vx[1]);
+      std::swap(Vt[0], Vt[1]);
       rev = true;
     }
 
-    const int start = int( (Vx[0] - tMin)*numPlanes/(tMax - tMin) );
-    const int end   = int( (Vx[1] - tMin)*numPlanes/(tMax - tMin) );
+    const int start = int( (Vt[0] - tMin)*numPlanes/(tMax - tMin) );
+    const int end   = int( (Vt[1] - tMin)*numPlanes/(tMax - tMin) );
 
     for ( int i = start; i <= end; ++i )
     {
       // Position of the slicing plane along the axis.
-      const double x = tMin + step*(i + 1);
+      const double t = tMin + step*(i + 1);
+
+      vout << BRepBuilderAPI_MakeVertex( ElCLib::Value(t, axisLin) );
 
       // The edge should have intersection point.
-      if ( x < Vx[0] || x > Vx[1] )
+      if ( t < Vt[0] || t > Vt[1] )
         continue;
 
       // Intersection point on the edge.
       const gp_XYZ edir = V[1] - V[0];
-      const double t    = rev ? Abs(x - Vx[1])/(Vx[1] - Vx[0]) : Abs(x - Vx[0])/(Vx[1] - Vx[0]);
-      const gp_XYZ p    = V[0] + t*edir;
+      const double tl   = rev ? Abs(t - Vt[1])/(Vt[1] - Vt[0]) : Abs(t - Vt[0])/(Vt[1] - Vt[0]); // Along link.
+      const gp_XYZ p    = V[0] + tl*edir;
+      double       pt   = p*axis.Direction().XYZ();
 
-      if ( (p.X() > Vx[1]) || (p.X() < Vx[0]) )
+      if ( (pt > Vt[1]) || (pt < Vt[0]) )
         continue; // Skip out of range intersection points.
 
-      if ( std::isnan( p.X() ) )
+      if ( std::isnan(pt) )
         continue;
 
-      vout << BRepBuilderAPI_MakeVertex(p);
-
-#if defined DRAW_DEBUG
-      xs  ->AddElement( x, 0, 0 );
-      ipts->AddElement( p.X(), p.Y(), p.Z() );
-#endif
+      //vout << BRepBuilderAPI_MakeVertex(p);
     }
   }
 
