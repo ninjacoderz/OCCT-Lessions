@@ -3,17 +3,21 @@
 // All rights reserved.
 //-----------------------------------------------------------------------------
 
+// Local includes
+#include "KHull2d.h"
 #include "Viewer.h"
 
 // OpenCascade includes
 #include <BRep_Builder.hxx>
 #include <BRepBndLib.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakePolygon.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <BRepGProp.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRepTools.hxx>
 #include <ElCLib.hxx>
+#include <ElSLib.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pln.hxx>
@@ -178,11 +182,11 @@ int main(int argc, char** argv)
   // plane 0: {P0, P1, P2 ...}
   // plane 1: {P3, P4, P5 ...}
   // ...
-  std::vector< std::vector<gp_XYZ> > edgesPts;
+  std::vector<Handle(PointWithAttrCloud<gp_XY>)> slicePts;
   //
   for ( int i = 0; i < numPlanes; ++i )
   {
-    edgesPts.push_back( std::vector<gp_XYZ>() );
+    slicePts.push_back( new PointWithAttrCloud<gp_XY> );
   }
 
   // Intersect each mesh link.
@@ -233,11 +237,59 @@ int main(int argc, char** argv)
       if ( std::isnan(pt) )
         continue;
 
+      // Evaluate on plane.
+      double u, v;
+      ElSLib::Parameters(planes[i], p, u, v);
+
       vout << BRepBuilderAPI_MakeVertex(p);
 
       // Store the slice point.
-      edgesPts[i].push_back(p);
+      static int pidx = 0;
+      slicePts[i]->AddElement( PointWithAttr<gp_XY>(gp_XY(u, v), 0, ++pidx) );
     }
+  }
+
+  /* =================
+   *  Construct hulls.
+   * ================= */
+
+  for ( int i = 0; i < numPlanes; ++i )
+  {
+    //if ( i == 0 )
+    //for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
+    //{
+    //  const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
+
+    //  vout << BRepBuilderAPI_MakeVertex( ElSLib::Value(uv.X(), uv.Y(), planes[i]) );
+    //}
+
+    // Prepare algorithm.
+    KHull2d<gp_XY> kHull(slicePts[i], 5, 0);
+
+    // Build K-neighbors hull.
+    if ( !kHull.Perform() )
+    {
+      std::cout << "K-hull failed." << std::endl;
+      continue;
+    }
+
+    // Override cloud with its hull.
+    slicePts[i] = kHull.GetHull();
+
+    // Build polygon for hull.
+    BRepBuilderAPI_MakePolygon mkPolygon;
+    //
+    for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
+    {
+      const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
+      const gp_Pnt P  = ElSLib::Value(uv.X(), uv.Y(), planes[i]);
+
+      mkPolygon.Add(P);
+
+      //vout << BRepBuilderAPI_MakeVertex(P);
+    }
+
+    vout << mkPolygon.Wire();
   }
 
   vout.StartMessageLoop();

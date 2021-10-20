@@ -823,7 +823,7 @@ std::vector<int>
   // Last link of the polygon.
   gp_Dir2d seedDir;
   if ( nPoints == 1 )
-    seedDir = -gp::DX2d();
+    seedDir = gp::DX2d();
   else
     seedDir = poly->GetElement(nPoints - 2).Coord - PLast;
 
