@@ -14,11 +14,19 @@ add_executable (Lesson_10_OcafEx
   src/main.cpp
 )
 
+message (STATUS "OpenCASCADE_LIBRARIES: ${OpenCASCADE_LIBRARIES}")
+
 # Add linker options
 foreach (LIB ${OpenCASCADE_LIBRARIES})
-  target_link_libraries(Lesson_10_OcafEx debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
-  target_link_libraries(Lesson_10_OcafEx optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+  if (MSVC)
+    target_link_libraries(Lesson_10_OcafEx debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
+    target_link_libraries(Lesson_10_OcafEx optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+  else()
+    target_link_libraries(Lesson_10_OcafEx optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+  endif()
 endforeach()
 
 # Adjust runtime environment
 set_property(TARGET Lesson_10_OcafEx PROPERTY VS_DEBUGGER_ENVIRONMENT "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%")
+
+install (TARGETS Lesson_10_OcafEx CONFIGURATIONS Release RUNTIME DESTINATION bin LIBRARY DESTINATION bin COMPONENT Runtime)

@@ -1,7 +1,9 @@
 // OpenCascade includes
-#include <TDocStd_Application.hxx>
-#include <TDataStd_Integer.hxx>
 #include <BinDrivers.hxx>
+#include <TDataStd_Integer.hxx>
+#include <TDF_Label.hxx>
+#include <TDocStd_Application.hxx>
+#include <TDocStd_Document.hxx>
 
 int main()
 {
