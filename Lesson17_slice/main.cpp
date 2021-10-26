@@ -4,12 +4,12 @@
 //-----------------------------------------------------------------------------
 
 // Local includes
-#include "KHull2d.h"
 #include "Viewer.h"
 
 // OpenCascade includes
 #include <BRep_Builder.hxx>
 #include <BRepBndLib.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakePolygon.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
@@ -27,6 +27,37 @@
 
 // Standard includes
 #include <unordered_map>
+
+//! Mesh link
+struct t_link
+{
+  int n[2];
+
+  t_link() { n[0] = n[1] = 0; }
+  t_link(const int _n0, const int _n1) { n[0] = _n0; n[1] = _n1; }
+  t_link(const std::initializer_list<int>& init) { n[0] = *init.begin(); n[1] = *(init.end() - 1); }
+
+  struct Hasher
+  {
+    //! \return hash code for the link.
+    static int HashCode(const t_link& link, const int upper)
+    {
+      int key = link.n[0] + link.n[1];
+      key += (key << 10);
+      key ^= (key >> 6);
+      key += (key << 3);
+      key ^= (key >> 11);
+      return (key & 0x7fffffff) % upper;
+    }
+
+    //! \return true if two links are equal.
+    static int IsEqual(const t_link& link0, const t_link& link1)
+    {
+      return ( (link0.n[0] == link1.n[0]) && (link0.n[1] == link1.n[1]) ) ||
+             ( (link0.n[1] == link1.n[0]) && (link0.n[0] == link1.n[1]) );
+    }
+  };
+};
 
 int main(int argc, char** argv)
 {
@@ -168,29 +199,23 @@ int main(int argc, char** argv)
 
     // Diagnostic dump.
     const double d = Abs(tMax - tMin)/2;
-    vout << BRepBuilderAPI_MakeFace(pln, -d, d, -d, d);
+    //vout << BRepBuilderAPI_MakeFace(pln, -d, d, -d, d);
   }
 
-  /* ===================================
-   *  Build mesh links and iterate them.
-   * =================================== */
+  /* =====================================
+   *  Build mesh links and intersect them.
+   * ===================================== */
 
   tris->ComputeLinks();
 
-  // Intersection points by edge IDs.
-  //
-  // plane 0: {P0, P1, P2 ...}
-  // plane 1: {P3, P4, P5 ...}
-  // ...
-  std::vector<Handle(PointWithAttrCloud<gp_XY>)> slicePts;
-  //
-  for ( int i = 0; i < numPlanes; ++i )
-  {
-    slicePts.push_back( new PointWithAttrCloud<gp_XY> );
-  }
+  // <slice : intersection point>
+  typedef std::unordered_map<int, gp_XYZ> t_slicePts;
 
   // Intersect each mesh link.
-  for ( Poly_CoherentTriangulation::IteratorOfLink lit(tris); lit.More(); lit.Next() )
+  NCollection_DataMap<t_link, t_slicePts, t_link::Hasher> linkPts; // Intersection points over the links.
+  //
+  for ( Poly_CoherentTriangulation::IteratorOfLink lit(tris);
+        lit.More(); lit.Next() )
   {
     const Poly_CoherentLink& link = lit.Value();
     //
@@ -237,60 +262,117 @@ int main(int argc, char** argv)
       if ( std::isnan(pt) )
         continue;
 
-      // Evaluate on plane.
-      double u, v;
-      ElSLib::Parameters(planes[i], p, u, v);
+      // Add new intersection point to the link.
+      t_link      link({n[0], n[1]});
+      t_slicePts* pPts = linkPts.ChangeSeek(link);
+      //
+      if ( !pPts )
+      {
+        t_slicePts slicePts;
+        slicePts.insert({i, p});
+        linkPts.Bind(link, slicePts);
+      }
+      else
+      {
+        pPts->insert({i, p});
+      }
 
       vout << BRepBuilderAPI_MakeVertex(p);
-
-      // Store the slice point.
-      static int pidx = 0;
-      slicePts[i]->AddElement( PointWithAttr<gp_XY>(gp_XY(u, v), 0, ++pidx) );
     }
   }
 
-  /* =================
-   *  Construct hulls.
-   * ================= */
+  /* ==============
+   *  Connect link.
+   * ============== */
 
   for ( int i = 0; i < numPlanes; ++i )
   {
-    //if ( i == 0 )
-    //for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
-    //{
-    //  const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
-
-    //  vout << BRepBuilderAPI_MakeVertex( ElSLib::Value(uv.X(), uv.Y(), planes[i]) );
-    //}
-
-    // Prepare algorithm.
-    KHull2d<gp_XY> kHull(slicePts[i], 5, 0);
-
-    // Build K-neighbors hull.
-    if ( !kHull.Perform() )
+    // Loop over triangles.
+    for ( Poly_CoherentTriangulation::IteratorOfTriangle tit(tris);
+          tit.More(); tit.Next() )
     {
-      std::cout << "K-hull failed." << std::endl;
-      continue;
+      const Poly_CoherentTriangle& t    = tit.Value();
+      const Poly_CoherentLink*     l[3] = { t.GetLink(0), t.GetLink(1), t.GetLink(2) };
+
+      // Get all intersection points for the current triangle.
+      std::vector<gp_XYZ> ps;
+      //
+      for ( int k = 0; k < 3; ++k )
+      {
+        int               n[2]      = { l[k]->Node(0), l[k]->Node(1) };
+        const t_slicePts* pSlicePts = linkPts.Seek( {n[0], n[1]} );
+        //
+        if ( pSlicePts )
+        {
+          for ( const auto& slice : *pSlicePts )
+          {
+            if ( slice.first == i ) // For the current section
+            {
+              ps.push_back(slice.second);
+
+              ///
+              /*if ( i == 0 )
+              {
+                vout << BRepBuilderAPI_MakeVertex(slice.second);
+                gp_XYZ V[2] = { tris->Node(n[0]), tris->Node(n[1]) };
+                vout << BRepBuilderAPI_MakeEdge(V[0], V[1]);
+              }*/
+              ///
+            }
+          }
+        }
+      }
+
+      if ( ps.size() == 2 )
+      {
+        if ( (ps[0] - ps[1]).Modulus() > Precision::Confusion() )
+          vout << BRepBuilderAPI_MakeEdge(ps[0], ps[1]);
+      }
     }
-
-    // Override cloud with its hull.
-    slicePts[i] = kHull.GetHull();
-
-    // Build polygon for hull.
-    BRepBuilderAPI_MakePolygon mkPolygon;
-    //
-    for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
-    {
-      const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
-      const gp_Pnt P  = ElSLib::Value(uv.X(), uv.Y(), planes[i]);
-
-      mkPolygon.Add(P);
-
-      //vout << BRepBuilderAPI_MakeVertex(P);
-    }
-
-    vout << mkPolygon.Wire();
   }
+
+  ///* =================
+  // *  Construct hulls.
+  // * ================= */
+
+  //for ( int i = 0; i < numPlanes; ++i )
+  //{
+  //  //if ( i == 0 )
+  //  //for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
+  //  //{
+  //  //  const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
+
+  //  //  vout << BRepBuilderAPI_MakeVertex( ElSLib::Value(uv.X(), uv.Y(), planes[i]) );
+  //  //}
+
+  //  // Prepare algorithm.
+  //  KHull2d<gp_XY> kHull(slicePts[i], 5, 0);
+
+  //  // Build K-neighbors hull.
+  //  if ( !kHull.Perform() )
+  //  {
+  //    std::cout << "K-hull failed." << std::endl;
+  //    continue;
+  //  }
+
+  //  // Override cloud with its hull.
+  //  slicePts[i] = kHull.GetHull();
+
+  //  // Build polygon for hull.
+  //  BRepBuilderAPI_MakePolygon mkPolygon;
+  //  //
+  //  for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
+  //  {
+  //    const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
+  //    const gp_Pnt P  = ElSLib::Value(uv.X(), uv.Y(), planes[i]);
+
+  //    mkPolygon.Add(P);
+
+  //    //vout << BRepBuilderAPI_MakeVertex(P);
+  //  }
+
+  //  vout << mkPolygon.Wire();
+  //}
 
   vout.StartMessageLoop();
   return 0;
