@@ -201,8 +201,8 @@ int main(int argc, char** argv)
     planes.push_back(pln);
 
     // Diagnostic dump.
-    const double d = Abs(tMax - tMin)/2;
-    //vout << BRepBuilderAPI_MakeFace(pln, -d, d, -d, d);
+    /*const double d = Abs(tMax - tMin)/2;
+      vout << BRepBuilderAPI_MakeFace(pln, -d, d, -d, d);*/
   }
 
   /* =====================================
@@ -333,8 +333,7 @@ int main(int argc, char** argv)
     }
 
     // Connect edges to wires in the current slice. Notice that there is initially
-    // not sharing between the vertices of edges, so the edges are going to be
-    // topologically stitched together.
+    // no sharing between the vertices of edges, so the edges will by stitched.
     Handle(TopTools_HSequenceOfShape) wires;
     ShapeAnalysis_FreeBounds::ConnectEdgesToWires(edgesBySlices[i], 1e-3, false, wires);
     wiresBySlices.push_back(wires);
