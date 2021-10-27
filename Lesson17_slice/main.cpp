@@ -136,7 +136,7 @@ int main(int argc, char** argv)
   }
 
   // Display the triangulation to be sure it's consistent.
-  vout << tris->GetTriangulation();
+  //vout << tris->GetTriangulation();
 
   /* ===============================
    *  Compute the longest dimension.
@@ -280,7 +280,7 @@ int main(int argc, char** argv)
         pPts->insert({i, p});
       }
 
-      vout << BRepBuilderAPI_MakeVertex(p);
+      //vout << BRepBuilderAPI_MakeVertex(p);
     }
   }
 
@@ -360,6 +360,9 @@ int main(int argc, char** argv)
 
       bbuilder.Add(wiresComp, wire);
       vout << wire;
+
+      // Make face.
+      vout << BRepBuilderAPI_MakeFace(TopoDS::Wire(wire), true);
     }
   }
 
