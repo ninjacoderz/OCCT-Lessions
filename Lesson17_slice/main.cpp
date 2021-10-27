@@ -22,8 +22,11 @@
 #include <gp_Lin.hxx>
 #include <gp_Pln.hxx>
 #include <Poly_CoherentTriangulation.hxx>
+#include <ShapeAnalysis_FreeBounds.hxx>
+#include <ShapeUpgrade_UnifySameDomain.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
+#include <TopTools_HSequenceOfShape.hxx>
 
 // Standard includes
 #include <unordered_map>
@@ -67,14 +70,14 @@ int main(int argc, char** argv)
    *  Get the working model.
    * ======================= */
 
+  BRep_Builder bbuilder;
+
   // Read from file.
   TopoDS_Shape shape;
   //
   if ( argc > 1 )
   {
-    BRep_Builder bb;
-    //
-    if ( !BRepTools::Read(shape, argv[1], bb) )
+    if ( !BRepTools::Read(shape, argv[1], bbuilder) )
     {
       std::cout << "Failed to read BREP shape from file '" << argv[1] << "'." << std::endl;
       return 1;
@@ -281,12 +284,18 @@ int main(int argc, char** argv)
     }
   }
 
-  /* ==============
-   *  Connect link.
-   * ============== */
+  /* ===============
+   *  Connect links.
+   * =============== */
+
+  std::vector<Handle(TopTools_HSequenceOfShape)> edgesBySlices;
+  std::vector<Handle(TopTools_HSequenceOfShape)> wiresBySlices;
+  std::vector<Handle(TopTools_HSequenceOfShape)> facesBySlices;
 
   for ( int i = 0; i < numPlanes; ++i )
   {
+    edgesBySlices.push_back(new TopTools_HSequenceOfShape);
+
     // Loop over triangles.
     for ( Poly_CoherentTriangulation::IteratorOfTriangle tit(tris);
           tit.More(); tit.Next() )
@@ -309,15 +318,6 @@ int main(int argc, char** argv)
             if ( slice.first == i ) // For the current section
             {
               ps.push_back(slice.second);
-
-              ///
-              /*if ( i == 0 )
-              {
-                vout << BRepBuilderAPI_MakeVertex(slice.second);
-                gp_XYZ V[2] = { tris->Node(n[0]), tris->Node(n[1]) };
-                vout << BRepBuilderAPI_MakeEdge(V[0], V[1]);
-              }*/
-              ///
             }
           }
         }
@@ -326,53 +326,44 @@ int main(int argc, char** argv)
       if ( ps.size() == 2 )
       {
         if ( (ps[0] - ps[1]).Modulus() > Precision::Confusion() )
-          vout << BRepBuilderAPI_MakeEdge(ps[0], ps[1]);
+        {
+          edgesBySlices[i]->Append( BRepBuilderAPI_MakeEdge(ps[0], ps[1]) );
+        }
       }
+    }
+
+    // Connect edges to wires in the current slice. Notice that there is initially
+    // not sharing between the vertices of edges, so the edges are going to be
+    // topologically stitched together.
+    Handle(TopTools_HSequenceOfShape) wires;
+    ShapeAnalysis_FreeBounds::ConnectEdgesToWires(edgesBySlices[i], 1e-3, false, wires);
+    wiresBySlices.push_back(wires);
+  }
+
+  /* =================
+   *  Construct faces.
+   * ================= */
+
+  TopoDS_Compound wiresComp;
+  bbuilder.MakeCompound(wiresComp);
+
+  for ( int i = 0; i < numPlanes; ++i )
+  {
+    for ( TopTools_SequenceOfShape::Iterator wit(*wiresBySlices[i]); wit.More(); wit.Next() )
+    {
+      TopoDS_Shape wire = wit.Value();
+
+      // Maximize edges.
+      ShapeUpgrade_UnifySameDomain Maximizer(wire);
+      Maximizer.Build();
+      wire = Maximizer.Shape();
+
+      bbuilder.Add(wiresComp, wire);
+      vout << wire;
     }
   }
 
-  ///* =================
-  // *  Construct hulls.
-  // * ================= */
-
-  //for ( int i = 0; i < numPlanes; ++i )
-  //{
-  //  //if ( i == 0 )
-  //  //for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
-  //  //{
-  //  //  const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
-
-  //  //  vout << BRepBuilderAPI_MakeVertex( ElSLib::Value(uv.X(), uv.Y(), planes[i]) );
-  //  //}
-
-  //  // Prepare algorithm.
-  //  KHull2d<gp_XY> kHull(slicePts[i], 5, 0);
-
-  //  // Build K-neighbors hull.
-  //  if ( !kHull.Perform() )
-  //  {
-  //    std::cout << "K-hull failed." << std::endl;
-  //    continue;
-  //  }
-
-  //  // Override cloud with its hull.
-  //  slicePts[i] = kHull.GetHull();
-
-  //  // Build polygon for hull.
-  //  BRepBuilderAPI_MakePolygon mkPolygon;
-  //  //
-  //  for ( int j = 0; j < slicePts[i]->GetNumberOfElements(); ++j )
-  //  {
-  //    const gp_XY& uv = slicePts[i]->GetElement(j).Coord;
-  //    const gp_Pnt P  = ElSLib::Value(uv.X(), uv.Y(), planes[i]);
-
-  //    mkPolygon.Add(P);
-
-  //    //vout << BRepBuilderAPI_MakeVertex(P);
-  //  }
-
-  //  vout << mkPolygon.Wire();
-  //}
+  BRepTools::Write(wiresComp, "C:/users/serge/desktop/wiresComp.brep");
 
   vout.StartMessageLoop();
   return 0;
