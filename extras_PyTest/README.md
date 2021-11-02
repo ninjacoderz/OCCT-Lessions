@@ -31,10 +31,8 @@ Let's give a word to Zoltan (our forum member):
  C++ forums and apply them straightforwardly in your Python application. PythonOCC uses SWIG
  for exposing OpenCASCADE to Python."
 
-
-
-Geeting started with PythonOCC in Anaconda3
-===========================================
+More on Anaconda
+================
 
 First of all, visit and carefully follow the instructions given by Alexander
 in this forum topic: http://analysissitus.org/forum/index.php?threads/pythonocc-getting-started-guide.19/
@@ -49,7 +47,7 @@ can follow some of the many videos/tutorials listed in the "Learning" tab of Ana
 If you're curious, you can navigate to the directory where PythonOCC Anaconda environment and package
 are located. You can find all the packages installed here (Windows):
 
-<ProfileDir>\.conda\pkgs
+/ProfileDir/\.conda\pkgs
 
 A bunch of files located in a directory make this directory an Anaconda package:
 
