@@ -670,7 +670,7 @@ if __name__ == '__main__':
     #modelPath = 'test-assets/z-axis_mellemplade_SW8.IGS'.lower()
     # modelPath = 'test-assets/Test Small.step'.lower()
     # modelPath = 'test-assets/Test-Nontouching-Squares.step'.lower()
-    modelPath = 'C:/work/Vaerks/python-codes/test-assets/DFM Analysis Test v1.step'.lower()
+    modelPath = 'D:/Work/AnalysisSitus/data/cad/ANC101.stp'.lower()
     #modelPath = 'test-assets/Price/Test2 v2.step'.lower()
     #modelPath = 'test-assets/Price/Test3 v2.step'.lower()
     #modelPath = 'test-assets/Price/Test4 v2.step'.lower()
@@ -696,4 +696,8 @@ if __name__ == '__main__':
     # Continue if no exceptions were raised
     else:
         partAnalysis = partAnalysis(modelShape, display=False)
-        #printModelAnalysis(partAnalysis)
+        printModelAnalysis(partAnalysis)
+
+        display, start_display, add_menu, add_function_to_menu = init_display()
+        display.DisplayShape(modelShape, update=True)
+        start_display()
