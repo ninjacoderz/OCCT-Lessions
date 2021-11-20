@@ -59,15 +59,15 @@ def partAnalysis(modelShape, display=False):
     
     # Analyze model
     modelAnalysis(modelShape, analysis)
-    #printModelAnalysis(analysis)
+    printModelAnalysis(analysis)
     
     # Analyze stock
     stockAnalysis(analysis)
-    #printStockAnalysis(analysis)
+    printStockAnalysis(analysis)
 
     # Analyze machining
     machiningAnalysis(modelShape, analysis)
-    #printMachiningAnalysis(analysis)
+    printMachiningAnalysis(analysis)
 
     # # Show faces 
     # print("\nDisplay")
