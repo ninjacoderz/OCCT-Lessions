@@ -6,6 +6,9 @@ project (Lesson_04 CXX)
 # OpenCascade
 find_package(OpenCASCADE)
 
+# Qt
+find_package(Qt)
+
 # Configure C++ compiler's includes dir
 include_directories ( SYSTEM ${OpenCASCADE_INCLUDE_DIR} )
 

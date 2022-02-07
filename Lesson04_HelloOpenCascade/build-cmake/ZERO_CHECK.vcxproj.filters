@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Homework\OCCT Lessons\Lesson04_HelloOpenCascade\build-cmake\CMakeFiles\b1f3200dd67d48fa952aebdb4706e94b\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{2C734577-165C-3B9E-BA96-62161862D243}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

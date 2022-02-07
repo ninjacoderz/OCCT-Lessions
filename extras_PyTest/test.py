@@ -119,6 +119,8 @@ def printModelAnalysis(analysis):
     strDddSurfaceArea = "  3D Surface Area: {:0.0f}mm^2".format(analysis["model3DSurfaceArea"])
     strEdgeLength = "  Edge Length: {:0.0f}mm".format(analysis["modelEdgeLength"])
     strModelFeatures = "  Features (Faces/Edges): {}/{}".format(analysis["modelNumFaces"], analysis["modelNumEdges"])
+    numUniqueFaces = analysis["modelNumUniqueFaces"]
+    logging.info(f"numUniqueFaces: {numUniqueFaces}")
     print("\nModelAnalysis:\n{}\n{}\n{}\n{}\n{}".format(strModelDimensions, strVolume, strSurfaceArea, strDddSurfaceArea, strEdgeLength, strModelFeatures))
 
 def countFaceTypes(faces):
@@ -670,7 +672,7 @@ if __name__ == '__main__':
     #modelPath = 'test-assets/z-axis_mellemplade_SW8.IGS'.lower()
     # modelPath = 'test-assets/Test Small.step'.lower()
     # modelPath = 'test-assets/Test-Nontouching-Squares.step'.lower()
-    modelPath = 'D:/Work/AnalysisSitus/data/cad/ANC101.stp'.lower()
+    # modelPath = 'D:/Work/ASitus/data/cad/ANC101.stp'.lower()
     #modelPath = 'test-assets/Price/Test2 v2.step'.lower()
     #modelPath = 'test-assets/Price/Test3 v2.step'.lower()
     #modelPath = 'test-assets/Price/Test4 v2.step'.lower()
@@ -683,8 +685,27 @@ if __name__ == '__main__':
     #modelPath = 'test-assets/Price/Test10-scale1000 v2.step'.lower()
     # modelPath = 'test-assets/Price/Test11.step'.lower()
     # modelPath = 'test-assets/Price/Test12.step'.lower()
-    
 
+    #modelPath ='D:\Work\ASitus_Extenstions\data\dfm\Vaerks\DFM_Analysis_Test_v1.step'
+    #modelPath ='D:\Work\ASitus_Extenstions\data\dfm\Vaerks\z-axis_mellemplade.step'
+    #modelPath = 'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\ANC101.stp' 
+    #modelPath = 'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\DFM_Analysis_Test_v2.step'
+    #modelPath = 'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\gehause_rohteil.stp'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Mill\NX-Mill-1.stp'
+    #modelPath = 'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\motor_adapter_v5.step'
+    #modelPath = 'D:\Work\ASitus_Extenstions\data\dfm\Fractory\FR_149066__0.stp'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\01_accessibility.stp'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\02 dybt spor.step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\03 skarpe hjoerner.step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\04 tynd vaeg.step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\05 udhaeng.step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\06 Rundt udhaeng (F360).step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\20021_Milling 07-05-2020 v3.step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\bugs\DFM0054_211101_Seal_V4_part1.step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\bugs\DFM0054_211101_Seal_v4_part2.step'
+    #modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\bugs\DFM0055_20021_Milling_07-05-2020_v3.step'
+    modelPath = r'D:\Work\ASitus_Extenstions\data\dfm\Vaerks\bugs\DFM0055_Lifting_disc_2.1_-_Color_v1.step'
+    
     # Load Model
     try:
         modelShape = loadPart(modelPath)
@@ -698,6 +719,6 @@ if __name__ == '__main__':
         partAnalysis = partAnalysis(modelShape, display=False)
         printModelAnalysis(partAnalysis)
 
-        display, start_display, add_menu, add_function_to_menu = init_display()
-        display.DisplayShape(modelShape, update=True)
-        start_display()
+        #display, start_display, add_menu, add_function_to_menu = init_display()
+        #display.DisplayShape(modelShape, update=True)
+        #start_display()
