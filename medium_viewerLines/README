@@ -1,0 +1,21 @@
+The custom presentatio implementation. It contains a polyline based on an array of points.
+This sample has animating of the polyline through an AIS_Shape and the custom presentation.
+
+Test scenario:
+- click 'AIS_Shape'
+- click 'top'
+- click 'fit all'
+- change 'lines now' to 7000
+- click 'run'
+- zoom(with right mouse click and move) the end of the polyline (right bottom angle)
+- uncheck 'run'
+- uncheck 'AIS_Shape'
+- click 'viewerLines_linePresentation'
+- click 'run'
+result: quicker than AIS_Shape
+
+Platform:
+  Windows, x64, VStudio 2019, cmake 3.5.4
+3rd-parties:
+  occt: 7.6.0
+  qt: 5.15.1
