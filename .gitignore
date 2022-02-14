@@ -19,6 +19,7 @@ demos/build*
 demos/*build
 */build/
 /build*
+*/build-cmake
 /install
 uic_wrapper.bat
 .vs
