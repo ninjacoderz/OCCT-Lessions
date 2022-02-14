@@ -68,4 +68,4 @@ endforeach()
 
 # Adjust runtime environment
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Lesson_18_Qt_Widgets)
-set_property(TARGET Lesson_18_Qt_Widgets PROPERTY VS_DEBUGGER_ENVIRONMENT "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;${QT_DIR};${QT_DIR}/bin;%PATH%")
+set_property(TARGET Lesson_18_Qt_Widgets PROPERTY VS_DEBUGGER_ENVIRONMENT "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;${QT_DIR}/bin;%PATH%;\nQT_PLUGIN_PATH=${QT_DIR}/plugins")
