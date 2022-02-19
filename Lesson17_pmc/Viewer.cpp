@@ -376,9 +376,6 @@ void Viewer::StartMessageLoop()
   // Add meshes.
   for ( auto mesh : m_meshes )
   {
-    // We build AIS_Triangulation here which is maybe not the best option
-    // as I saw it does not apply locations to nodes. Refer to MeshVS
-    // for somewhat better interfaces.
     Handle(MeshVS_Mesh) meshVs = new MeshVS_Mesh;
     //
     meshVs->SetDataSource  ( new TriangulationDataSource(mesh) );

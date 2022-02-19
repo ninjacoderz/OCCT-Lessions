@@ -145,7 +145,7 @@ int main(int argc, char** argv)
   gp_XYZ       Pmin      = aabb.CornerMin().XYZ();
   gp_XYZ       Pmax      = aabb.CornerMax().XYZ();
   gp_XYZ       D         = Pmax - Pmin;
-  double       dims[3]   = { Abs(D.X()), Abs(D.Y()), Abs(D.Z()) };
+  double       dims[3]   = { D.X(), D.Y(), D.Z() };
   const double mind      = Min(dims[0], Min(dims[1], dims[2]));
   const double d         = mind/density;
   const int    nslice[3] = { int(Round(dims[0]/d)) + 1,

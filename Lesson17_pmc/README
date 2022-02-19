@@ -1,3 +1,3 @@
-Lesson 16: Slice a model.
+Lesson 17: Point membership classification (PMC)
 
-Slices the provided CAD model along the given axis.
+This lesson demonstrates how to check if a 3D point belongs to a CAD solid body.
