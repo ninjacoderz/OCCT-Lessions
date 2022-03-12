@@ -1,0 +1,20 @@
+Minimal OCCT viewer implementation.
+
+It provides functionality:
+- Zoom - by right mouse button,
+- Pan  - by middle mouse button,
+- Rotation - by left mouse button if there is no detection.
+- Selection - by left mouse button if detected object exists.
+- Selection with rectangle - by left mouse and SHIFT pressed.
+
+The sample imports BRep file if possible, if not it creates default shape (ring).
+BRep file name is given as a parameter argument of the sample (on snapshots the 'data\cad\blends\0011_b_boxblend.brep' of AnalysisSitus).
+It creates AIS_Trihedron to check the positioning of the shape.
+
+Platform:
+  Windows, x64, VStudio 2019, cmake 3.5.4
+3rd-parties:
+  occt:     7.6.0
+  tbb:      2020.1
+  freetype: 2.5.5
+  qt:       5.15.1
