@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 // Created on: 20 December 2021
-// Copyright (c) 2021-present, Quaoar Studio (contact@quaoar.pro)
+// Copyright (c) 2021-present, Quaoar Studio (ask@quaoar.pro)
 //----------------------------------------------------------------------------
 
 // OpenCascade includes
