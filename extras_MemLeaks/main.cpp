@@ -1,50 +1,35 @@
-//-----------------------------------------------------------------------------
-// Copyright (c) 2022-present, Quaoar Studio (ask@quaoar.pro)
-//----------------------------------------------------------------------------
+#include <Geom_Line.hxx>
 
-// OpenCascade includes
-#include <Standard_Type.hxx>
-
-// Local includes
-#include "MemTracker.h"
-
-#include "windows.h"
-
-class MyEntity : public Standard_Transient
+class MyCurve : public Standard_Transient
 {
-  DEFINE_STANDARD_RTTI_INLINE(MyEntity, Standard_Transient)
-
-  DEFINE_STANDARD_ALLOC
+  DEFINE_STANDARD_RTTI_INLINE(MyCurve, Standard_Transient)
 
 public:
 
-  MyEntity()
+  MyCurve()
   {
-    std::cout << "ctor" << std::endl;
+    std::cout << "Ctor" << std::endl;
   }
 
-  ~MyEntity()
+  ~MyCurve()
   {
-    std::cout << "dtor" << std::endl;
+    std::cout << "Dtor" << std::endl;
   }
 
-private:
-
-  int num[1024];
 };
+
+void Foo(const Handle(MyCurve)& c)
+{
+  std::cout << c->DynamicType()->Name() << std::endl;
+}
 
 int main(int argc, char *argv[])
 {
-  const int numIter = 10000;
+  //Handle(MyCurve) curve = new MyCurve;
+  // curve is alive
+  Foo(curve);
 
-  for ( int i = 0; i < numIter; ++i )
-  {
-    Handle(MyEntity) ent = new MyEntity;
-    MEMCHECK
-    //Sleep(1);
-  }
-
-  MEMCHECK_DUMP("C:/users/serge/desktop/mem.txt")
+  auto curve = new MyCurve;
 
   return 0;
 }
