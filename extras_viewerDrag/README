@@ -1,0 +1,16 @@
+OCCT viewer with draggable presentation. The presentation implements processing of the drag action.
+To drag the presentation, just move the mouse over the presentation, press the mouse left button and move the mouse. 
+
+The sample contains two shape presentations (cylinders).
+One of presentation is draggable.
+
+It displays the default trihedron of V3d view in the bottom left corner.
+This sample is an extension of extras_viewerNative sample with the possibility to drag object.
+
+Platform:
+  Windows, x64, VStudio 2019, cmake 3.5.4
+3rd-parties:
+  occt:     7.6.0
+  tbb:      2020.1
+  freetype: 2.5.5
+  qt:       5.15.1
