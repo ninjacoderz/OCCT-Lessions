@@ -1,0 +1,23 @@
+Dragging shape presentation by AIS_Manipulator.
+
+The sample contains two AIS_Shape presentations (cylinders).
+One of presentation has attached AIS_Manipulator. It's possible to move it in another position by
+managing through the sensitive areas of the manipulator.
+
+AIS_Manipulator provides functionality:
+- Pan    - dragging by sector,
+- Scale  - dragging by box in a selected direction,
+- Rotate - dragging by circle arc,
+- Move   - dragging by axis in a selected direction.
+
+It displays the default trihedron of V3d view in the bottom left corner.
+This sample is an extension of extras_viewerNative sample with the possibility to drag object.
+To drag the AIS_Manipulator is created and attached to some AIS_Shape presentation.
+
+Platform:
+  Windows, x64, VStudio 2019, cmake 3.5.4
+3rd-parties:
+  occt:     7.6.0
+  tbb:      2020.1
+  freetype: 2.5.5
+  qt:       5.15.1
