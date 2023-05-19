@@ -48,3 +48,5 @@ Makefile*
 
 #
 /test/*.brep
+
+Lesson22_project-curves/build-occt760/
