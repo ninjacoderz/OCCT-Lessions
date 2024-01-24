@@ -12,6 +12,11 @@ include_directories( SYSTEM ${OpenCASCADE_INCLUDE_DIR} )
 # Add executable
 add_executable(extras_Threads
   main.cpp
+  Timer.h
+  Viewer.cpp
+  Viewer.h
+  ViewerInteractor.cpp
+  ViewerInteractor.h
 )
 
 # Add linker options
