@@ -26,11 +26,6 @@
 //----------------------------------------------------------------------------
 
 /*
-   This minimalistic example is based on the code snippet provided
-   by Roman Lygin in his blog here:
-
-   https://opencascade.blogspot.com/2009/07/developing-parallel-applications-with.html
-
    It should be noted that OpenCascade threads are nothing but wrappers
    over the operating system's threads. Therefore, you might consider
    using them just for simplicity and OS-independent abstraction.
