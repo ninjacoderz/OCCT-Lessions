@@ -1,29 +1,29 @@
 #include <Draw_Main.hxx>
 
-#include <Geom_Circle.hxx>
+#include <GCE2d_MakeCircle.hxx>
 #include <DrawTrSurf.hxx>
-#include <BRepPrimAPI_MakeBox.hxx>
-#include <DBRep.hxx>
 
-#include <tcl.h>
-
-int MyTestCommand(Draw_Interpretor& di,
-                  int               argc,
-                  const char**      argv)
+int TestSketch(Draw_Interpretor& di,
+               int               argc,
+               const char**      argv)
 {
-  Handle(Geom_Circle) c = new Geom_Circle( gp_Ax2( gp::Origin(), gp::DZ() ), 10 );
+  // 1-st circle
+  const double c1x = Atof (argv[2]);
+  const double c1y = Atof (argv[3]);
+  const double r1  = Atof (argv[4]);
 
-  DrawTrSurf::Set("c", c);
-  Standard_CString varName = "c";
-  Handle(Geom_Circle) g = Handle(Geom_Circle)::DownCast( DrawTrSurf::Get(varName) );
-  //
-  std::cout << "Radius is " << g->Radius() << std::endl;
+  // 2-nd circle
+  const double c2x = Atof (argv[5]);
+  const double c2y = Atof (argv[6]);
+  const double r2  = Atof (argv[7]);
 
-  TopoDS_Shape box = BRepPrimAPI_MakeBox(10, 10, 10);
-  //
-  DBRep::Set("b", box);
+  Handle(Geom2d_Circle) C1 = GCE2d_MakeCircle( gp_Pnt2d(c1x, c1y), r1 );
+  Handle(Geom2d_Circle) C2 = GCE2d_MakeCircle( gp_Pnt2d(c2x, c2y), r2 );
 
-  DBRep::Get()
+  DrawTrSurf::Set("C1", C1);
+  DrawTrSurf::Set("C2", C2);
+
+  di.Eval("av2d; 2dfit");
 
   return 0;
 }
@@ -32,7 +32,7 @@ void Draw_InitAppli(Draw_Interpretor& di)
 {
   Draw::Commands(di);
 
-  di.Add("mytest", "myhelp string", MyTestCommand);
+  di.Add("test-sketch", "test-sketch <name> <c1x> <c1y> <r1> <c2x> <c2y> <r2>", TestSketch);
 }
 
 DRAW_MAIN
