@@ -34,13 +34,15 @@
 // BVH includes
 #include "BVHIterator.h"
 
+// Viewer includes
+#include "Viewer.h"
+
 // OCCT includes
 #include <Bnd_Box.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepBndLib.hxx>
-#include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BVH_BinnedBuilder.hxx>
 #include <BVH_LinearBuilder.hxx>
 #include <TopExp.hxx>
@@ -51,12 +53,20 @@
 // Standard includes
 #include <map>
 
+#define DRAW_DEBUG
+#if defined DRAW_DEBUG
+  #pragma message("===== warning: DRAW_DEBUG is enabled")
+#endif
+
+
 //-----------------------------------------------------------------------------
 
 BVHFacets::BVHFacets(const TopoDS_Shape&  model,
-                     const BVHBuilderType builderType)
+                     const BVHBuilderType builderType,
+                     Viewer*              pViewer)
 : BVH_PrimitiveSet<double, 3> (),
-  m_fBoundingDiag             (0.0)
+  m_fBoundingDiag             (0.0),
+  m_pViewer                   (pViewer)
 {
   this->init(model, builderType);
   this->MarkDirty();
@@ -65,9 +75,11 @@ BVHFacets::BVHFacets(const TopoDS_Shape&  model,
 //-----------------------------------------------------------------------------
 
 BVHFacets::BVHFacets(const Handle(Poly_Triangulation)& mesh,
-                     const BVHBuilderType              builderType)
+                     const BVHBuilderType              builderType,
+                     Viewer*                           pViewer)
 : BVH_PrimitiveSet<double, 3> (),
-  m_fBoundingDiag             (0.0)
+  m_fBoundingDiag             (0.0),
+  m_pViewer                   (pViewer)
 {
   this->init(mesh, builderType);
   this->MarkDirty();
@@ -77,6 +89,13 @@ BVHFacets::BVHFacets(const Handle(Poly_Triangulation)& mesh,
 
 BVHFacets::~BVHFacets()
 {
+}
+
+//-----------------------------------------------------------------------------
+
+void BVHFacets::SetViewer(Viewer* pViewer)
+{
+  m_pViewer = pViewer;
 }
 
 //-----------------------------------------------------------------------------
@@ -261,14 +280,34 @@ bool BVHFacets::addTriangulation(const Handle(Poly_Triangulation)& triangulation
     gp_Vec V1(P0, P1);
     //
     if ( V1.SquareMagnitude() < 1e-8 )
+    {
+#if defined DRAW_DEBUG
+      (*m_pViewer) << P0;
+      (*m_pViewer) << P1;
+      (*m_pViewer) << P2;
+#endif
+
+      std::cerr << "V1.SquareMagnitude() < epsilon." << std::endl;
+
       continue; // Skip invalid facet.
+    }
     //
     V1.Normalize();
 
     gp_Vec V2(P0, P2);
     //
     if ( V2.SquareMagnitude() < 1e-8 )
+    {
+#if defined DRAW_DEBUG
+      (*m_pViewer) << P0;
+      (*m_pViewer) << P1;
+      (*m_pViewer) << P2;
+#endif
+
+      std::cerr << "V2.SquareMagnitude() < epsilon." << std::endl;
+
       continue; // Skip invalid facet.
+    }
     //
     V2.Normalize();
 
@@ -276,7 +315,17 @@ bool BVHFacets::addTriangulation(const Handle(Poly_Triangulation)& triangulation
     facet.N = V1.Crossed(V2);
     //
     if ( facet.N.SquareMagnitude() < 1e-8 )
+    {
+#if defined DRAW_DEBUG
+      (*m_pViewer) << P0;
+      (*m_pViewer) << P1;
+      (*m_pViewer) << P2;
+#endif
+
+      std::cerr << "facet.N.SquareMagnitude() < epsilon." << std::endl;
+
       continue; // Skip invalid facet
+    }
     //
     facet.N.Normalize();
 

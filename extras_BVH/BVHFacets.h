@@ -42,6 +42,8 @@
 // STL includes
 #include <vector>
 
+class Viewer;
+
 //-----------------------------------------------------------------------------
 
 //! BVH construction algorithm.
@@ -85,20 +87,26 @@ public:
   //! Creates the accelerating structure with immediate initialization.
   //! \param[in] model       the CAD model to create the accelerating structure for.
   //! \param[in] builderType the type of the builder to use.
+  //! \param[in] pViewer     the viewer instance for visual debugging.
   BVHFacets(const TopoDS_Shape&  model,
-            const BVHBuilderType builderType = BVHBuilder_Binned);
+            const BVHBuilderType builderType = BVHBuilder_Binned,
+            Viewer*              pViewer     = nullptr);
 
   //! Creates the accelerating structure with immediate initialization.
   //! \param[in] mesh        the triangulation to create the accelerating structure for.
   //! \param[in] builderType the type of the builder to use.
-  //! \param[in] progress    the progress notifier.
-  //! \param[in] plotter     the imperative plotter.
+  //! \param[in] pViewer     the viewer instance for visual debugging.
   BVHFacets(const Handle(Poly_Triangulation)& mesh,
-            const BVHBuilderType              builderType = BVHBuilder_Binned);
+            const BVHBuilderType              builderType = BVHBuilder_Binned,
+            Viewer*                           pViewer     = nullptr);
 
   //! Dtor.
   virtual
     ~BVHFacets();
+
+public:
+
+  void SetViewer(Viewer* pViewer);
 
 public:
 
@@ -224,6 +232,9 @@ protected:
 
   //! Characteristic size of the model.
   double m_fBoundingDiag;
+
+  //! Viewer for visual diagnostics.
+  Viewer* m_pViewer;
 
 };
 

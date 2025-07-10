@@ -32,6 +32,9 @@
 #include "BVHFacets.h"
 #include "BVHIterator.h"
 
+// Viewer
+#include "Viewer.h"
+
 // OpenCascade includes
 #include <BRep_Tool.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
@@ -57,48 +60,65 @@ int main(int argc, char** argv)
     std::cerr << "Usage: model.step\n";
     return 1;
   }
+
+  Viewer vout(50, 50, 500, 500);
+
+  // Read STEP file.
   STEPControl_Reader reader;
-  if (reader.ReadFile(argv[1]) != IFSelect_RetDone)
+  //
+  if ( reader.ReadFile(argv[1]) != IFSelect_RetDone )
   {
     std::cerr << "STEP read failed\n";
     return 1;
   }
+  //
   reader.TransferRoots();
+  //
   TopoDS_Shape shape = reader.OneShape();
 
+  vout << shape;
+
+  // Generate facets.
   BRepMesh_IncrementalMesh(shape, 0.1);
+
+  // Check summary.
   int totalTriangles = 0;
   int totalFaces = 0;
   int facesWithMesh = 0;
-
-  for (TopExp_Explorer explorer(shape, TopAbs_FACE); explorer.More(); explorer.Next()) {
+  //
+  for ( TopExp_Explorer explorer(shape, TopAbs_FACE);
+        explorer.More(); explorer.Next() )
+  {
     totalFaces++;
-    TopoDS_Face face = TopoDS::Face(explorer.Current());
+    const TopoDS_Face& face = TopoDS::Face( explorer.Current() );
 
     TopLoc_Location loc;
     Handle(Poly_Triangulation) triangulation = BRep_Tool::Triangulation(face, loc);
-
+    //
     if ( !triangulation.IsNull() )
     {
       facesWithMesh++;
       totalTriangles += triangulation->NbTriangles();
     }
   }
-  Handle(BVHFacets) bvh = new BVHFacets(shape, BVHBuilder_Binned);
 
+  // Construct a BVH tree.
+  Handle(BVHFacets) bvh = new BVHFacets(shape, BVHBuilder_Binned, &vout);
+  //
   const opencascade::handle<BVH_Tree<double, 3>>& bvhTree = bvh->BVH();
-
+  //
   if ( bvhTree.IsNull() )
   {
     std::cerr << "Failed to build BVH\n";
     return 1;
   }
 
+  // Traverse the BVH tree.
   std::cout << "Traversing BVH tree...\n\n";
   std::map<int, std::string> nodeRelationship;
   nodeRelationship[0] = "Root";
   int totalBvhTriangles = 0;
-
+  //
   for ( BVHIterator it(bvhTree); it.More(); it.Next() )
   {
     const BVH_Vec4i& nodeData = it.Current();
@@ -136,5 +156,5 @@ int main(int argc, char** argv)
 
   std::cout << "BVH size: " << bvh->Size() << std::endl;
 
-  return 0;
+  vout.StartMessageLoop();
 }
