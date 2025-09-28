@@ -34,9 +34,10 @@
 // OpenCascade includes
 #include <NCollection_DataMap.hxx>
 #include <NCollection_List.hxx>
+#include <TDF_Label.hxx>
+#include <TDF_LabelMap.hxx>
 
 class TDF_Label;
-class TDF_LabelMapHasher;
 class TopLoc_Location;
 class XCAFPrs_Style;
 class TCollection_AsciiString;
@@ -45,9 +46,8 @@ class AIS_InteractiveContext;
 class TDocStd_Document;
 
 //! Type alias for label-presentation map.
-typedef NCollection_DataMap<TDF_Label,
-                            NCollection_List<Handle(AIS_InteractiveObject)>,
-                            TDF_LabelMapHasher> LabelPrsMap;
+typedef NCollection_DataMap<Standard_Integer,
+                          NCollection_List<Handle(AIS_InteractiveObject)>> LabelPrsMap;
 
 //! Redisplays all objects in the viewer.
 class DisplayScene : public Standard_Transient

@@ -1,10 +1,24 @@
-cmake_minimum_required (VERSION 3.0.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 4.0)
 
 # Project name
 project (Lesson_12_XDE CXX)
 
+# Set module path
+
+set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../adm/cmake" ${CMAKE_MODULE_PATH})
+
 # OpenCascade
-find_package(OpenCASCADE)
+find_package(OpenCASCADE REQUIRED)
+
+if (NOT OpenCASCADE_FOUND)
+  message (FATAL_ERROR "could not find OpenCASCADE, please set OpenCASCADE_DIR variable" )
+else()
+  message (STATUS "Using OpenCASCADE from \"${OpenCASCADE_INSTALL_PREFIX}\"" )
+  message (STATUS "OpenCASCADE_INCLUDE_DIR=${OpenCASCADE_INCLUDE_DIR}")
+  message (STATUS "OpenCASCADE_LIBRARY_DIR=${OpenCASCADE_LIBRARY_DIR}")
+  message (STATUS "OpenCASCADE_LIBRARIES=${OpenCASCADE_LIBRARIES}")
+  INCLUDE_DIRECTORIES(${OpenCASCADE_INCLUDE_DIR})
+endif()
 
 # Configure C++ compiler's includes dir
 include_directories ( SYSTEM ${OpenCASCADE_INCLUDE_DIR} )

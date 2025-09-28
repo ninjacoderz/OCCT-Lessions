@@ -30,10 +30,6 @@
 
 #pragma once
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 // Local includes
 #include "ViewerInteractor.h"
 
@@ -43,6 +39,7 @@
 
 // Standard includes
 #include <vector>
+#include "GlfwOcctWindow.h"
 
 class V3d_Viewer;
 class V3d_View;
@@ -52,18 +49,15 @@ class AIS_ViewController;
 //-----------------------------------------------------------------------------
 
 //! Simple 3D viewer.
-class Viewer
+class GlfwOcctViewer
 {
 public:
 
-  Viewer(const int left,
-         const int top,
-         const int width,
-         const int height);
+  GlfwOcctViewer( int left, int top, int width, int height);
 
 public:
 
-  Viewer& operator<<(const TopoDS_Shape& shape)
+  GlfwOcctViewer& operator<<(const TopoDS_Shape& shape)
   {
     this->AddShape(shape);
     return *this;
@@ -71,28 +65,39 @@ public:
 
   void AddShape(const TopoDS_Shape& shape);
 
-  void StartMessageLoop();
+  //! Main application entry point.
+  void run();
 
 private:
+  //! Create GLFW window.
+  void initWindow(int theWidth, int theHeight, const char *theTitle);  
 
-  static LRESULT WINAPI
-    wndProcProxy(HWND hwnd,
-                 UINT message,
-                 WPARAM wparam,
-                 LPARAM lparam);
+  //! Create 3D GlfwOcctViewer.
+  void initViewer();
 
-  LRESULT CALLBACK
-    wndProc(HWND hwnd,
-            UINT message,
-            WPARAM wparam,
-            LPARAM lparam);
+  void initEvents();
 
-  void init(const HANDLE& windowHandle);
+  //! Application event loop.
+  void mainloop();
 
-/* API-related things */
+  //! Draw Shapes
+  void drawShapes();
+
 private:
-
   std::vector<TopoDS_Shape> m_shapes; //!< Shapes to visualize.
+
+private:
+  //! Wrapper for glfwGetWindowUserPointer() returning this class instance.
+  static GlfwOcctViewer* toView (GLFWwindow* theWin);
+  //! Mouse scroll callback.
+  static void onMouseScrollCallback (GLFWwindow* theWin, double theOffsetX, double theOffsetY)
+  { 
+    toView(theWin)->onMouseScroll (theOffsetX, theOffsetY); 
+  }
+
+private:
+  //! Mouse scroll event.
+  void onMouseScroll (double theOffsetX, double theOffsetY);
 
 /* OpenCascade's things */
 private:
@@ -100,15 +105,12 @@ private:
   Handle(V3d_Viewer)             m_viewer;
   Handle(V3d_View)               m_view;
   Handle(AIS_InteractiveContext) m_context;
-  Handle(WNT_Window)             m_wntWindow;
+  
   Handle(ViewerInteractor)       m_evtMgr;
+  Handle(GlfwOcctWindow) m_glfwOcctWindow;
 
 /* Lower-level things */
 private:
-
-  HINSTANCE m_hInstance; //!< Handle to the instance of the module.
-  HWND      m_hWnd;      //!< Handle to the instance of the window.
   bool      m_bQuit;     //!< Indicates whether user want to quit from window.
-
 };
 

@@ -163,7 +163,7 @@ void DisplayScene::displayItem(const TDF_Label&               label,
     // creating copies. That's the typical instancing thing you'd expect to have
     // in any good enough 3D graphics API.
     NCollection_List<Handle(AIS_InteractiveObject)>*
-      aisListPtr = mapOfOriginals.ChangeSeek(refLabel);
+      aisListPtr = mapOfOriginals.ChangeSeek(refLabel.Tag());
 
     if ( aisListPtr == NULL )
     {
@@ -206,7 +206,7 @@ void DisplayScene::displayItem(const TDF_Label&               label,
         itemRepresList.Append(brepPrs);
       }
 
-      aisListPtr = mapOfOriginals.Bound( refLabel, itemRepresList );
+      aisListPtr = mapOfOriginals.Bound( refLabel.Tag(), itemRepresList );
     }
     else
     {
@@ -260,7 +260,7 @@ void DisplayScene::displayItem(const TDF_Label&               label,
                   << std::endl;
 
         m_ctx->Remove(brepConnected, Standard_False);
-        mapOfOriginals.UnBind(refLabel);
+        mapOfOriginals.UnBind(refLabel.Tag());
       }
     }
 
