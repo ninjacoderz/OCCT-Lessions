@@ -48,8 +48,7 @@ ViewerInteractor::ViewerInteractor(const Handle(V3d_View)&               view,
 
 //-----------------------------------------------------------------------------
 
-ViewerInteractor::~ViewerInteractor()
-{}
+ViewerInteractor::~ViewerInteractor() = default;
 
 //-----------------------------------------------------------------------------
 
@@ -93,37 +92,34 @@ void ViewerInteractor::ProcessConfigure()
 
 //-----------------------------------------------------------------------------
 
-void ViewerInteractor::KeyDown(Aspect_VKey key,
-                               double      time,
-                               double      pressure)
+void ViewerInteractor::KeyDown(const Aspect_VKey theKey,
+                               const double      theTime,
+                               const double      thePressure)
 {
-  AIS_ViewController::KeyDown(key, time, pressure);
+  AIS_ViewController::KeyDown(theKey, theTime, thePressure);
 }
 
 //-----------------------------------------------------------------------------
 
-void ViewerInteractor::KeyUp(Aspect_VKey key,
-                             double      time)
+void ViewerInteractor::KeyUp(const Aspect_VKey theKey,
+                             const double      theTime)
 {
-  const unsigned int modifOld = myKeys.Modifiers();
+  AIS_ViewController::KeyUp(theKey, theTime);
   //
-  AIS_ViewController::KeyUp(key, time);
-  //
-  const unsigned int modifNew = myKeys.Modifiers();
+  const unsigned int modifyNew = myKeys.Modifiers();
 
-  ProcessKeyPress(key | modifNew);
+  ProcessKeyPress(theKey | modifyNew);
 }
 
 //-----------------------------------------------------------------------------
 
-void ViewerInteractor::ProcessKeyPress(Aspect_VKey key)
-{
+void ViewerInteractor::ProcessKeyPress(Aspect_VKey theKey) const {
   if ( m_ctx.IsNull() || m_view.IsNull() )
   {
     return;
   }
 
-  switch ( key )
+  switch ( theKey )
   {
     case Aspect_VKey_F:
     {
@@ -140,7 +136,7 @@ void ViewerInteractor::ProcessKeyPress(Aspect_VKey key)
     case Aspect_VKey_S:
     case Aspect_VKey_W:
     {
-      const int dm = ( key == Aspect_VKey_S ) ? AIS_Shaded : AIS_WireFrame;
+      const int dm = ( theKey == Aspect_VKey_S ) ? AIS_Shaded : AIS_WireFrame;
 
       if ( m_ctx->NbSelected() == 0 )
       {

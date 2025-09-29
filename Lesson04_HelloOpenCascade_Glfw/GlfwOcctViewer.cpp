@@ -154,6 +154,7 @@ void GlfwOcctViewer::onMouseScroll (double theOffsetX, double theOffsetY)
   {
     const Graphic3d_Vec2i aPos = m_glfwOcctWindow->CursorPosition();
     m_evtMgr->UpdateMouseScroll(Aspect_ScrollDelta(aPos, int(theOffsetY * 8.0)));
+    m_evtMgr->FlushViewEvents(m_context, m_view, true);
   }
 }
 

@@ -39,7 +39,7 @@ class AIS_InteractiveContext;
 class V3d_View;
 
 //! Manages input events.
-class ViewerInteractor : public Standard_Transient, public AIS_ViewController
+class ViewerInteractor final : public Standard_Transient, public AIS_ViewController
 {
 public:
 
@@ -55,7 +55,7 @@ public:
                    const Handle(AIS_InteractiveContext)& ctx);
 
   //! Dtor.
-  virtual ~ViewerInteractor();
+  ~ViewerInteractor() override;
 
 public:
 
@@ -64,32 +64,33 @@ public:
     GetContext() const { return m_ctx; }
 
   //! Handle mouse button press/release event.
-  virtual bool UpdateMouseButtons(const Graphic3d_Vec2i& thePoint,
+  bool UpdateMouseButtons(const Graphic3d_Vec2i& thePoint,
                                   Aspect_VKeyMouse       theButtons,
                                   Aspect_VKeyFlags       theModifiers,
                                   bool                   theIsEmulated) Standard_OVERRIDE;
 
   //! Release key.
-  virtual void KeyDown(Aspect_VKey theKey,
+  void KeyDown(Aspect_VKey theKey,
                        double theTime,
                        double thePressure = 1.0) Standard_OVERRIDE;
 
   //! Release key.
-  virtual void KeyUp(Aspect_VKey theKey,
+  void KeyUp(Aspect_VKey theKey,
                      double theTime) Standard_OVERRIDE;
 
   //! Redraw the View on an Expose Event
-  virtual void ProcessExpose();
+  void ProcessExpose() override;
 
   //! Handle redraw.
-  virtual void handleViewRedraw(const Handle(AIS_InteractiveContext)& theCtx,
+  void handleViewRedraw(const Handle(AIS_InteractiveContext)& theCtx,
                                 const Handle(V3d_View)& theView) Standard_OVERRIDE;
 
   //! Resize View.
   virtual void ProcessConfigure();
 
   //! Handle KeyPress event.
-  void ProcessKeyPress(Aspect_VKey theKey);
+  void ProcessKeyPress(Aspect_VKey theKey) const;
+
 
 private:
 

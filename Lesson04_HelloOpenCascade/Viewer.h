@@ -30,70 +30,85 @@
 
 #pragma once
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
+// Local includes
+#include "ViewerInteractor.h"
+
 // OpenCascade includes
-#include <AIS_ViewController.hxx>
-#include <TColgp_Array1OfPnt2d.hxx>
-#include <TCollection_AsciiString.hxx>
+#include <TopoDS_Shape.hxx>
+#include <WNT_Window.hxx>
 
-class AIS_InteractiveContext;
+// Standard includes
+#include <vector>
+
+class V3d_Viewer;
 class V3d_View;
+class AIS_InteractiveContext;
+class AIS_ViewController;
 
-//! Manages input events.
-class ViewerInteractor : public Standard_Transient, public AIS_ViewController
+//-----------------------------------------------------------------------------
+
+//! Simple 3D viewer.
+class Viewer
 {
 public:
 
-  // OCCT RTTI
-  DEFINE_STANDARD_RTTI_INLINE(ViewerInteractor, Standard_Transient)
+  Viewer(const int left,
+         const int top,
+         const int width,
+         const int height);
 
 public:
 
-  //! Ctor.
-  //! \param[in] view the V3d view instance.
-  //! \param[in] ctx  the interactive context.
-  ViewerInteractor(const Handle(V3d_View)&               view,
-                   const Handle(AIS_InteractiveContext)& ctx);
+  Viewer& operator<<(const TopoDS_Shape& shape)
+  {
+    this->AddShape(shape);
+    return *this;
+  }
 
-  //! Dtor.
-  virtual ~ViewerInteractor();
+  void AddShape(const TopoDS_Shape& shape);
 
-public:
-
-  //! Return interactive context.
-  const Handle(AIS_InteractiveContext)&
-    GetContext() const { return m_ctx; }
-
-  //! Handle mouse button press/release event.
-  virtual bool UpdateMouseButtons(const Graphic3d_Vec2i& thePoint,
-                                  Aspect_VKeyMouse       theButtons,
-                                  Aspect_VKeyFlags       theModifiers,
-                                  bool                   theIsEmulated) Standard_OVERRIDE;
-
-  //! Release key.
-  virtual void KeyDown(Aspect_VKey theKey,
-                       double theTime,
-                       double thePressure = 1.0) Standard_OVERRIDE;
-
-  //! Release key.
-  virtual void KeyUp(Aspect_VKey theKey,
-                     double theTime) Standard_OVERRIDE;
-
-  //! Redraw the View on an Expose Event
-  virtual void ProcessExpose();
-
-  //! Handle redraw.
-  virtual void handleViewRedraw(const Handle(AIS_InteractiveContext)& theCtx,
-                                const Handle(V3d_View)& theView) Standard_OVERRIDE;
-
-  //! Resize View.
-  virtual void ProcessConfigure();
-
-  //! Handle KeyPress event.
-  void ProcessKeyPress(Aspect_VKey theKey);
+  void StartMessageLoop();
 
 private:
 
-  Handle(V3d_View)               m_view; //!< 3D view.
-  Handle(AIS_InteractiveContext) m_ctx;  //!< Interactive context.
+  static LRESULT WINAPI
+    wndProcProxy(HWND hwnd,
+                 UINT message,
+                 WPARAM wparam,
+                 LPARAM lparam);
+
+  LRESULT CALLBACK
+    wndProc(HWND hwnd,
+            UINT message,
+            WPARAM wparam,
+            LPARAM lparam);
+
+  void init(const HANDLE& windowHandle);
+
+/* API-related things */
+private:
+
+  std::vector<TopoDS_Shape> m_shapes; //!< Shapes to visualize.
+
+/* OpenCascade's things */
+private:
+
+  Handle(V3d_Viewer)             m_viewer;
+  Handle(V3d_View)               m_view;
+  Handle(AIS_InteractiveContext) m_context;
+  Handle(WNT_Window)             m_wntWindow;
+  Handle(ViewerInteractor)       m_evtMgr;
+
+/* Lower-level things */
+private:
+
+  HINSTANCE m_hInstance; //!< Handle to the instance of the module.
+  HWND      m_hWnd;      //!< Handle to the instance of the window.
+  bool      m_bQuit;     //!< Indicates whether user want to quit from window.
 
 };
+
