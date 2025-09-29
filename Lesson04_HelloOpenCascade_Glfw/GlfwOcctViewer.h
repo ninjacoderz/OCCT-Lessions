@@ -142,7 +142,17 @@ private:
   {
     toView(theWin)->onMouseMove ((int )thePosX, (int )thePosY);
   }
- 
+  //! Window resize callback.
+  static void onResizeCallback (GLFWwindow* theWin, int theWidth, int theHeight)
+  { 
+    toView(theWin)->onResize (theWidth, theHeight); 
+  }
+
+  static void onKeyCallback (GLFWwindow* theWin, int key, int scancode, int action, int mods)
+  { 
+    toView(theWin)->onKey ( key, scancode, action, mods);
+  }
+  
 private:
   //! Mouse scroll event.
   void onMouseScroll (double theOffsetX, double theOffsetY);
@@ -150,7 +160,11 @@ private:
   void onMouseButton(int theButton, int theAction, int theMods);
  
   void onMouseMove(int thePosX, int thePosY);
- 
+
+  void onResize(int theWidth, int theHeight);
+
+  void onKey(int key, int scancode, int action, int mods);
+
   /* OpenCascade's things */
   private:
  

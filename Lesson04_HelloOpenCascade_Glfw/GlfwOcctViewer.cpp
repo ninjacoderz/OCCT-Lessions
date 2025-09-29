@@ -118,6 +118,8 @@ void GlfwOcctViewer::initEvents()
   glfwSetScrollCallback (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onMouseScrollCallback);
   glfwSetMouseButtonCallback (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onMouseButtonCallback);
   glfwSetCursorPosCallback   (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onMouseMoveCallback);
+  glfwSetWindowSizeCallback      (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onResizeCallback);
+  glfwSetKeyCallback (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onKeyCallback);
 }
 
 void GlfwOcctViewer::mainloop()
@@ -163,7 +165,7 @@ void GlfwOcctViewer::onMouseScroll (double theOffsetX, double theOffsetY)
 void GlfwOcctViewer::onMouseButton (int theButton, int theAction, int theMods)
 {
   if (m_view.IsNull()) { return; }
- 
+  
   const Graphic3d_Vec2i aPos = m_glfwOcctWindow->CursorPosition();
   if (theAction == GLFW_PRESS)
   {
@@ -184,6 +186,42 @@ void GlfwOcctViewer::onMouseMove (int thePosX, int thePosY)
   }
 }
  
+void GlfwOcctViewer::onResize (int theWidth, int theHeight)
+{
+  if (theWidth  != 0
+   && theHeight != 0
+   && !m_view.IsNull())
+  {
+    m_view->Window()->DoResize();
+    m_view->MustBeResized();
+    m_view->Invalidate();
+    m_view->Redraw();
+  }
+}
+
+Aspect_VKey ConvertKey(int glfwKey)
+{
+  switch (glfwKey)
+  {
+    case GLFW_KEY_F: return Aspect_VKey_F;
+    case GLFW_KEY_S: return Aspect_VKey_S;
+    case GLFW_KEY_W: return Aspect_VKey_W;
+    case GLFW_KEY_T: return Aspect_VKey_T;
+    case GLFW_KEY_B: return Aspect_VKey_B;
+    case GLFW_KEY_L: return Aspect_VKey_L;
+    case GLFW_KEY_R: return Aspect_VKey_R;
+    case GLFW_KEY_BACKSPACE: return Aspect_VKey_Backspace;
+    default: return Aspect_VKey_UNKNOWN;
+  }
+}
+
+void GlfwOcctViewer::onKey (int key, int scancode, int action, int mods){
+  Aspect_VKey convertToOcctKey = ConvertKey(key);
+  if (action == GLFW_PRESS)
+      m_evtMgr->KeyDown(convertToOcctKey, glfwGetTime(), 1.0);
+  else if (action == GLFW_RELEASE)
+      m_evtMgr->KeyUp(convertToOcctKey, glfwGetTime());
+}
  
 void GlfwOcctViewer::initWindow(int theWidth, int theHeight, const char *theTitle)
 {

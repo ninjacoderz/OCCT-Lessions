@@ -37,7 +37,7 @@
 #include <AIS_InteractiveContext.hxx>
 #include <AIS_Shape.hxx>
 #include <V3d_View.hxx>
-
+#include <GLFW/glfw3.h>
 //-----------------------------------------------------------------------------
 
 ViewerInteractor::ViewerInteractor(const Handle(V3d_View)&               view,
@@ -104,6 +104,9 @@ void ViewerInteractor::KeyDown(const Aspect_VKey theKey,
 void ViewerInteractor::KeyUp(const Aspect_VKey theKey,
                              const double      theTime)
 {
+
+  const unsigned int modifOld = myKeys.Modifiers();
+
   AIS_ViewController::KeyUp(theKey, theTime);
   //
   const unsigned int modifyNew = myKeys.Modifiers();
@@ -111,9 +114,8 @@ void ViewerInteractor::KeyUp(const Aspect_VKey theKey,
   ProcessKeyPress(theKey | modifyNew);
 }
 
-//-----------------------------------------------------------------------------
-
 void ViewerInteractor::ProcessKeyPress(Aspect_VKey theKey) const {
+
   if ( m_ctx.IsNull() || m_view.IsNull() )
   {
     return;
