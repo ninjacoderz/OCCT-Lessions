@@ -115,7 +115,9 @@ void GlfwOcctViewer::initViewer()
 void GlfwOcctViewer::initEvents()
 {
   // mouse callback
-  glfwSetScrollCallback (m_glfwOcctWindow->getGlfwWindow(),GlfwOcctViewer::onMouseScrollCallback);
+  glfwSetScrollCallback (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onMouseScrollCallback);
+  glfwSetMouseButtonCallback (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onMouseButtonCallback);
+  glfwSetCursorPosCallback   (m_glfwOcctWindow->getGlfwWindow(), GlfwOcctViewer::onMouseMoveCallback);
 }
 
 void GlfwOcctViewer::mainloop()
@@ -153,11 +155,36 @@ void GlfwOcctViewer::onMouseScroll (double theOffsetX, double theOffsetY)
   if (!m_view.IsNull())
   {
     const Graphic3d_Vec2i aPos = m_glfwOcctWindow->CursorPosition();
-    m_evtMgr->UpdateMouseScroll(Aspect_ScrollDelta(aPos, int(theOffsetY * 8.0)));
+    m_evtMgr->UpdateMouseScroll(Aspect_ScrollDelta(aPos, theOffsetY));
     m_evtMgr->FlushViewEvents(m_context, m_view, true);
   }
 }
-
+ 
+void GlfwOcctViewer::onMouseButton (int theButton, int theAction, int theMods)
+{
+  if (m_view.IsNull()) { return; }
+ 
+  const Graphic3d_Vec2i aPos = m_glfwOcctWindow->CursorPosition();
+  if (theAction == GLFW_PRESS)
+  {
+    m_evtMgr->PressMouseButton (aPos, mouseButtonFromGlfw (theButton), keyFlagsFromGlfw (theMods), false);
+  }
+  else
+  {
+    m_evtMgr->ReleaseMouseButton (aPos, mouseButtonFromGlfw (theButton), keyFlagsFromGlfw (theMods), false);
+  }
+}
+ 
+void GlfwOcctViewer::onMouseMove (int thePosX, int thePosY)
+{
+  const Graphic3d_Vec2i aNewPos (thePosX, thePosY);
+  if (!m_view.IsNull())
+  {
+    m_evtMgr->UpdateMousePosition (aNewPos, m_evtMgr->PressedMouseButtons(), m_evtMgr->LastMouseFlags(), false);
+  }
+}
+ 
+ 
 void GlfwOcctViewer::initWindow(int theWidth, int theHeight, const char *theTitle)
 {
 
@@ -177,8 +204,8 @@ void GlfwOcctViewer::initWindow(int theWidth, int theHeight, const char *theTitl
 void GlfwOcctViewer::run()
 {
   initWindow(800, 600, "The First OCCT Window");
-  initViewer();
   initEvents();
+  initViewer();
   drawShapes();
   mainloop();
 }

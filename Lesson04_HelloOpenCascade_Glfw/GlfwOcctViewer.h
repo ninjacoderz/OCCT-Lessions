@@ -45,9 +45,45 @@ class V3d_Viewer;
 class V3d_View;
 class AIS_InteractiveContext;
 class AIS_ViewController;
-
-//-----------------------------------------------------------------------------
-
+ 
+namespace
+{
+  //! Convert GLFW mouse button into Aspect_VKeyMouse.
+  static Aspect_VKeyMouse mouseButtonFromGlfw (int theButton)
+  {
+    switch (theButton)
+    {
+      case GLFW_MOUSE_BUTTON_LEFT:   return Aspect_VKeyMouse_LeftButton;
+      case GLFW_MOUSE_BUTTON_RIGHT:  return Aspect_VKeyMouse_RightButton;
+      case GLFW_MOUSE_BUTTON_MIDDLE: return Aspect_VKeyMouse_MiddleButton;
+    }
+    return Aspect_VKeyMouse_NONE;
+  }
+ 
+  //! Convert GLFW key modifiers into Aspect_VKeyFlags.
+  static Aspect_VKeyFlags keyFlagsFromGlfw (int theFlags)
+  {
+    Aspect_VKeyFlags aFlags = Aspect_VKeyFlags_NONE;
+    if ((theFlags & GLFW_MOD_SHIFT) != 0)
+    {
+      aFlags |= Aspect_VKeyFlags_SHIFT;
+    }
+    if ((theFlags & GLFW_MOD_CONTROL) != 0)
+    {
+      aFlags |= Aspect_VKeyFlags_CTRL;
+    }
+    if ((theFlags & GLFW_MOD_ALT) != 0)
+    {
+      aFlags |= Aspect_VKeyFlags_ALT;
+    }
+    if ((theFlags & GLFW_MOD_SUPER) != 0)
+    {
+      aFlags |= Aspect_VKeyFlags_META;
+    }
+    return aFlags;
+  }
+}
+ 
 //! Simple 3D viewer.
 class GlfwOcctViewer
 {
@@ -91,17 +127,33 @@ private:
   static GlfwOcctViewer* toView (GLFWwindow* theWin);
   //! Mouse scroll callback.
   static void onMouseScrollCallback (GLFWwindow* theWin, double theOffsetX, double theOffsetY)
-  { 
-    toView(theWin)->onMouseScroll (theOffsetX, theOffsetY); 
+  {
+    toView(theWin)->onMouseScroll (theOffsetX, theOffsetY);
   }
-
+ 
+  //! Mouse click callback.
+  static void onMouseButtonCallback (GLFWwindow* theWin, int theButton, int theAction, int theMods)
+  {
+    toView(theWin)->onMouseButton (theButton, theAction, theMods);
+  }
+ 
+  //! Mouse move callback.
+  static void onMouseMoveCallback (GLFWwindow* theWin, double thePosX, double thePosY)
+  {
+    toView(theWin)->onMouseMove ((int )thePosX, (int )thePosY);
+  }
+ 
 private:
   //! Mouse scroll event.
   void onMouseScroll (double theOffsetX, double theOffsetY);
-
-/* OpenCascade's things */
-private:
-
+ 
+  void onMouseButton(int theButton, int theAction, int theMods);
+ 
+  void onMouseMove(int thePosX, int thePosY);
+ 
+  /* OpenCascade's things */
+  private:
+ 
   Handle(V3d_Viewer)             m_viewer;
   Handle(V3d_View)               m_view;
   Handle(AIS_InteractiveContext) m_context;
@@ -113,4 +165,3 @@ private:
 private:
   bool      m_bQuit;     //!< Indicates whether user want to quit from window.
 };
-
