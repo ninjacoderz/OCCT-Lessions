@@ -82,7 +82,25 @@ namespace
     }
     return aFlags;
   }
+  static Aspect_VKey keyFromGlfw(int glfwKey)
+  {
+    switch (glfwKey)
+    {
+      case GLFW_KEY_F: return Aspect_VKey_F;
+      case GLFW_KEY_S: return Aspect_VKey_S;
+      case GLFW_KEY_W: return Aspect_VKey_W;
+      case GLFW_KEY_T: return Aspect_VKey_T;
+      case GLFW_KEY_B: return Aspect_VKey_B;
+      case GLFW_KEY_L: return Aspect_VKey_L;
+      case GLFW_KEY_R: return Aspect_VKey_R;
+      case GLFW_KEY_BACKSPACE: return Aspect_VKey_Backspace;
+      default: return Aspect_VKey_UNKNOWN;
+    }
+  }
 }
+
+
+
  
 //! Simple 3D viewer.
 class GlfwOcctViewer

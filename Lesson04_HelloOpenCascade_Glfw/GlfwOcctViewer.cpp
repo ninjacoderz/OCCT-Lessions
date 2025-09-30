@@ -199,24 +199,8 @@ void GlfwOcctViewer::onResize (int theWidth, int theHeight)
   }
 }
 
-Aspect_VKey ConvertKey(int glfwKey)
-{
-  switch (glfwKey)
-  {
-    case GLFW_KEY_F: return Aspect_VKey_F;
-    case GLFW_KEY_S: return Aspect_VKey_S;
-    case GLFW_KEY_W: return Aspect_VKey_W;
-    case GLFW_KEY_T: return Aspect_VKey_T;
-    case GLFW_KEY_B: return Aspect_VKey_B;
-    case GLFW_KEY_L: return Aspect_VKey_L;
-    case GLFW_KEY_R: return Aspect_VKey_R;
-    case GLFW_KEY_BACKSPACE: return Aspect_VKey_Backspace;
-    default: return Aspect_VKey_UNKNOWN;
-  }
-}
-
 void GlfwOcctViewer::onKey (int key, int scancode, int action, int mods){
-  Aspect_VKey convertToOcctKey = ConvertKey(key);
+  Aspect_VKey convertToOcctKey = keyFromGlfw(key);
   if (action == GLFW_PRESS)
       m_evtMgr->KeyDown(convertToOcctKey, glfwGetTime(), 1.0);
   else if (action == GLFW_RELEASE)
