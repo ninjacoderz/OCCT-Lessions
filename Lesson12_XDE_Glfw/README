@@ -1,0 +1,7 @@
+Lesson 12: XDE.
+
+This lesson demonstrates how to read and visualize colored shapes and CAD assemblies using the XDE framework of
+OpenCascade (http://analysissitus.org/features/features_asm-xde-document.html). The key to efficient visualization
+is using the AIS connected interactives that are designed to reproduce the instancing relationships between the assembly
+components as they are defined in the input format. The 3D scene leveraging this AIS connected interactives architecture
+is populated in `DisplayScene` class.
